@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Matchup, SimulationResult } from '../types/football';
 import { runMonteCarloSimulation } from '../utils/simulator';
 import { TrenchHeatmap } from './TrenchHeatmap';
+import { DistributionChart } from './DistributionChart';
 import { 
   ChevronDown, 
   ChevronUp, 
@@ -252,6 +253,16 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                 </button>
               )}
             </div>
+
+            {/* Dynamic Monte Carlo Distribution Curve */}
+            <DistributionChart
+              distribution={sim.distributionScores}
+              marketSpread={matchup.market.spread}
+              simulatedSpread={sim.simulatedSpread}
+              homeWinPct={sim.homeWinPct}
+              homeName={matchup.homeTeam.name}
+              awayName={matchup.awayTeam.name}
+            />
 
             <div className="flex flex-wrap gap-2 text-xs">
               <button
