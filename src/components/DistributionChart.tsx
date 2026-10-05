@@ -17,18 +17,25 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
   homeName,
   awayName,
 }) => {
+  const [zoomLevel, setZoomLevel] = React.useState<number>(1); // 1x, 1.5x, 2.5x
   if (!distribution || distribution.length === 0) return null;
 
   const maxCount = Math.max(...distribution.map((d) => d.count), 1);
-  const minMargin = -28;
-  const maxMargin = 28;
+  
+  // Dynamic bounds depending on zoom level:
+  // 1x = -28 to +28 (full view)
+  // 1.5x = -18 to +18 (standard betting key-number window)
+  // 2.5x = -10 to +10 (high-leverage margin tail / field-goal window)
+  const rangeMargin = zoomLevel === 2.5 ? 10 : zoomLevel === 1.5 ? 18 : 28;
+  const minMargin = -rangeMargin;
+  const maxMargin = rangeMargin;
 
-  // Filter and normalize points within -28 to +28 range
+  // Filter and normalize points within the active zoom window
   const filtered = distribution.filter((d) => d.margin >= minMargin && d.margin <= maxMargin);
 
   // SVG dimensions
   const width = 600;
-  const height = 140;
+  const height = 145;
   const paddingX = 40;
   const paddingY = 25;
 
@@ -48,21 +55,60 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
 
   // Generate SVG smooth path line & area
   const points = filtered.map((d) => `${getX(d.margin)},${getY(d.count)}`);
-  const linePath = `M ${points.join(' L ')}`;
-  const areaPath = `M ${getX(filtered[0]?.margin || minMargin)},${height - paddingY} L ${points.join(' L ')} L ${getX(filtered[filtered.length - 1]?.margin || maxMargin)},${height - paddingY} Z`;
+  const linePath = points.length > 0 ? `M ${points.join(' L ')}` : '';
+  const areaPath = filtered.length > 0
+    ? `M ${getX(filtered[0]?.margin || minMargin)},${height - paddingY} L ${points.join(' L ')} L ${getX(filtered[filtered.length - 1]?.margin || maxMargin)},${height - paddingY} Z`
+    : '';
 
   const marketSpreadX = getX(-marketSpread);
   const modelSpreadX = getX(-simulatedSpread);
 
+  // Ticks based on zoom level
+  const ticks = zoomLevel === 2.5
+    ? [-10, -7, -3, 0, 3, 7, 10]
+    : zoomLevel === 1.5
+    ? [-17, -14, -10, -7, -3, 0, 3, 7, 10, 14, 17]
+    : [-28, -21, -14, -7, 0, 7, 14, 21, 28];
+
   return (
     <div className="w-full rounded-xl border border-slate-200 bg-white p-4 my-3 shadow-sm">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Probability Distribution Curve (10,000 Monte Carlo Runs)
+            Probability Distribution Curve (10,000 Runs)
           </span>
+          {/* Interactive Zoom Controls */}
+          <div className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-[10px] font-mono">
+            <button
+              onClick={() => setZoomLevel(1)}
+              className={`px-2 py-0.5 rounded font-bold transition-all ${
+                zoomLevel === 1 ? 'bg-white text-slate-900 shadow-xs border border-slate-200' : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Full Window (-28 to +28)"
+            >
+              1x Full
+            </button>
+            <button
+              onClick={() => setZoomLevel(1.5)}
+              className={`px-2 py-0.5 rounded font-bold transition-all ${
+                zoomLevel === 1.5 ? 'bg-white text-slate-900 shadow-xs border border-slate-200' : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Key Numbers Window (-18 to +18)"
+            >
+              1.5x Key
+            </button>
+            <button
+              onClick={() => setZoomLevel(2.5)}
+              className={`px-2 py-0.5 rounded font-bold transition-all ${
+                zoomLevel === 2.5 ? 'bg-white text-orange-600 shadow-xs border border-orange-200' : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Close Game Margin (-10 to +10)"
+            >
+              2.5x Zoom
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-[11px] font-mono">
+        <div className="flex items-center gap-3 text-[11px] font-mono">
           <span className="text-racing-600 font-bold">
             {homeName} Win: {homeWinPct}%
           </span>
@@ -189,7 +235,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
           />
 
           {/* Margin Ticks */}
-          {[-21, -14, -7, 0, 7, 14, 21].map((tick) => (
+          {ticks.map((tick) => (
             <g key={tick}>
               <line
                 x1={getX(tick)}

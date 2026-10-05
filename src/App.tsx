@@ -14,11 +14,18 @@ import {
 
 export function App() {
   const [selectedLeague, setSelectedLeague] = useState<League>('CFB');
+  const [selectedWeek, setSelectedWeek] = useState<number>(6); // Default CFB Week 6, NFL Week 5
   const [filterType, setFilterType] = useState<'ALL' | 'HIGH_EDGE' | 'TOP_25' | 'WIND'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [matchups, setMatchups] = useState<Matchup[]>(SAMPLE_MATCHUPS);
   const [isLiveFeed, setIsLiveFeed] = useState(false);
   const [isLoadingFeed, setIsLoadingFeed] = useState(false);
+
+  // Switch default week when league toggles
+  const handleLeagueChange = (league: League) => {
+    setSelectedLeague(league);
+    setSelectedWeek(league === 'CFB' ? 6 : 5);
+  };
 
   // Automatically fetch live weekly schedule from Cloudflare Ingestion API
   useEffect(() => {
@@ -26,15 +33,11 @@ export function App() {
     async function loadLiveSlate() {
       setIsLoadingFeed(true);
       try {
-        const res = await fetch(`/api/slate?league=${selectedLeague}`);
+        const res = await fetch(`/api/slate?league=${selectedLeague}&week=${selectedWeek}`);
         if (res.ok) {
           const data = await res.json();
           if (data.matchups && data.matchups.length > 0 && isMounted) {
-            const currentSamples = SAMPLE_MATCHUPS.filter(m => m.league === selectedLeague);
-            const liveOnly = data.matchups.filter((lm: Matchup) => 
-              !currentSamples.some(s => s.homeTeam.name === lm.homeTeam.name)
-            );
-            setMatchups([...currentSamples, ...liveOnly]);
+            setMatchups(data.matchups);
             setIsLiveFeed(true);
           }
         }
@@ -47,7 +50,7 @@ export function App() {
 
     loadLiveSlate();
     return () => { isMounted = false; };
-  }, [selectedLeague]);
+  }, [selectedLeague, selectedWeek]);
 
   // Filter matchups
   const filteredMatchups = matchups.filter((m) => {
@@ -126,10 +129,10 @@ export function App() {
         <EdgeExplainer />
 
         {/* League Selector Tabs */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div className="flex rounded-xl border border-slate-200 bg-slate-100 p-1 shadow-inner">
             <button
-              onClick={() => setSelectedLeague('CFB')}
+              onClick={() => handleLeagueChange('CFB')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                 selectedLeague === 'CFB'
                   ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80'
@@ -141,7 +144,7 @@ export function App() {
             </button>
 
             <button
-              onClick={() => setSelectedLeague('NFL')}
+              onClick={() => handleLeagueChange('NFL')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                 selectedLeague === 'NFL'
                   ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80'
@@ -202,6 +205,26 @@ export function App() {
               Wind Impact (&gt;12 MPH)
             </button>
           </div>
+        </div>
+
+        {/* Dynamic Week Navigation Bar */}
+        <div className="mb-5 flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-thin">
+          <span className="text-[11px] font-mono font-bold uppercase text-slate-500 mr-2 flex-shrink-0">
+            Select Week:
+          </span>
+          {Array.from({ length: selectedLeague === 'CFB' ? 15 : 18 }, (_, i) => i + 1).map((w) => (
+            <button
+              key={w}
+              onClick={() => setSelectedWeek(w)}
+              className={`px-3 py-1 text-xs font-mono font-bold rounded-lg border transition-all flex-shrink-0 shadow-xs ${
+                selectedWeek === w
+                  ? 'bg-slate-900 text-white border-slate-900'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+              }`}
+            >
+              Wk {w}
+            </button>
+          ))}
         </div>
 
         {/* Search Bar */}
