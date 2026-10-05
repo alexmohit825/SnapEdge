@@ -90,14 +90,14 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
   const isDivergenceHigh = Math.abs(matchup.model.divergencePoints) >= 2.0;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/90 shadow-xl backdrop-blur-md transition-all hover:border-slate-700/80 mb-6">
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-swiss transition-all hover:shadow-swiss-hover hover:border-slate-300 mb-6">
       {/* Top Banner: League, Time, & Divergence Alert */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 bg-slate-950/60 px-5 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-slate-50/60 px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <span className="rounded-md bg-slate-800 px-2 py-0.5 text-xs font-mono font-bold text-slate-300">
+          <span className="rounded-md bg-white border border-slate-200 px-2.5 py-0.5 text-xs font-mono font-bold text-slate-800 shadow-sm">
             {matchup.league} • WEEK {matchup.week}
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-500 font-medium">
             {matchup.stadium} ({matchup.location})
           </span>
         </div>
@@ -105,12 +105,12 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
         {/* Divergence Edge Pill */}
         <div className="flex items-center gap-2">
           {isDivergenceHigh && (
-            <div className="flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-400/30">
-              <Zap className="h-3.5 w-3.5 fill-emerald-400" />
+            <div className="flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-600 border border-orange-200 shadow-sm">
+              <Zap className="h-3.5 w-3.5 fill-orange-500" />
               <span>EDGE: {Math.abs(matchup.model.divergencePoints)} PTS VALUE</span>
             </div>
           )}
-          <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-xs font-bold text-slate-300">
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">
             GRADE {matchup.model.edgeConfidenceGrade}
           </span>
         </div>
@@ -125,7 +125,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div 
-                  className="h-10 w-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-md"
+                  className="h-10 w-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-sm"
                   style={{ backgroundColor: matchup.awayTeam.logoColor }}
                 >
                   {matchup.awayTeam.abbreviation}
@@ -133,18 +133,18 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                 <div>
                   <div className="flex items-center gap-2">
                     {matchup.awayTeam.rank && (
-                      <span className="text-xs font-bold text-slate-400">#{matchup.awayTeam.rank}</span>
+                      <span className="text-xs font-bold text-orange-600 font-mono">#{matchup.awayTeam.rank}</span>
                     )}
-                    <h4 className="text-base font-bold text-white tracking-wide">
+                    <h4 className="text-base font-bold text-slate-900 tracking-tight">
                       {matchup.awayTeam.name}
                     </h4>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
                     <span>{matchup.awayTeam.record}</span>
                     <span>•</span>
                     <span>{matchup.awayTeam.conference}</span>
                     {matchup.awayTeam.blueChipRatio && (
-                      <span className="text-cyan-400 font-mono">
+                      <span className="text-slate-700 font-mono font-semibold">
                         ({matchup.awayTeam.blueChipRatio}% Blue-Chip)
                       </span>
                     )}
@@ -154,10 +154,10 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
               {/* Away Proj Score */}
               <div className="text-right">
-                <span className="text-2xl font-mono font-black text-white">
+                <span className="text-2xl font-mono font-black text-slate-900">
                   {sim.projectedScoreAway}
                 </span>
-                <span className="block text-[10px] uppercase font-mono text-slate-500">Proj</span>
+                <span className="block text-[10px] uppercase font-mono text-slate-400">Proj</span>
               </div>
             </div>
 
@@ -165,7 +165,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div 
-                  className="h-10 w-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-md"
+                  className="h-10 w-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-sm"
                   style={{ backgroundColor: matchup.homeTeam.logoColor }}
                 >
                   {matchup.homeTeam.abbreviation}
@@ -173,18 +173,18 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                 <div>
                   <div className="flex items-center gap-2">
                     {matchup.homeTeam.rank && (
-                      <span className="text-xs font-bold text-slate-400">#{matchup.homeTeam.rank}</span>
+                      <span className="text-xs font-bold text-orange-600 font-mono">#{matchup.homeTeam.rank}</span>
                     )}
-                    <h4 className="text-base font-bold text-white tracking-wide">
+                    <h4 className="text-base font-bold text-slate-900 tracking-tight">
                       {matchup.homeTeam.name}
                     </h4>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
                     <span>{matchup.homeTeam.record}</span>
                     <span>•</span>
                     <span>{matchup.homeTeam.conference}</span>
                     {matchup.homeTeam.blueChipRatio && (
-                      <span className="text-cyan-400 font-mono">
+                      <span className="text-slate-700 font-mono font-semibold">
                         ({matchup.homeTeam.blueChipRatio}% Blue-Chip)
                       </span>
                     )}
@@ -194,25 +194,25 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
               {/* Home Proj Score */}
               <div className="text-right">
-                <span className="text-2xl font-mono font-black text-white">
+                <span className="text-2xl font-mono font-black text-slate-900">
                   {sim.projectedScoreHome}
                 </span>
-                <span className="block text-[10px] uppercase font-mono text-slate-500">Proj</span>
+                <span className="block text-[10px] uppercase font-mono text-slate-400">Proj</span>
               </div>
             </div>
           </div>
 
           {/* Market vs SnapEdge Projection Side-by-Side */}
-          <div className="lg:col-span-5 grid grid-cols-2 gap-3 rounded-xl border border-slate-800 bg-slate-950/80 p-4">
+          <div className="lg:col-span-5 grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
             {/* Public Market */}
             <div>
-              <span className="block text-[11px] font-mono uppercase text-slate-400 tracking-wider mb-1">
+              <span className="block text-[11px] font-mono uppercase text-slate-500 tracking-wider mb-1 font-semibold">
                 Market Line
               </span>
-              <div className="text-lg font-mono font-bold text-slate-300">
+              <div className="text-xl font-mono font-black text-slate-800">
                 {matchup.market.spread > 0 ? `+${matchup.market.spread}` : matchup.market.spread}
               </div>
-              <div className="text-xs text-slate-400">
+              <div className="text-xs text-slate-600 font-medium">
                 O/U {matchup.market.total}
               </div>
               <div className="mt-1 text-[10px] text-slate-500 font-mono">
@@ -221,17 +221,17 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
             </div>
 
             {/* SnapEdge Model Fair Value */}
-            <div className="border-l border-slate-800 pl-3">
-              <span className="block text-[11px] font-mono uppercase text-emerald-400 tracking-wider mb-1">
+            <div className="border-l border-slate-200 pl-3">
+              <span className="block text-[11px] font-mono uppercase text-orange-600 tracking-wider mb-1 font-bold">
                 SnapEdge Value
               </span>
-              <div className="text-lg font-mono font-bold text-emerald-400">
+              <div className="text-xl font-mono font-black text-orange-600">
                 {sim.simulatedSpread > 0 ? `+${sim.simulatedSpread}` : sim.simulatedSpread}
               </div>
-              <div className="text-xs text-emerald-300">
+              <div className="text-xs text-slate-700 font-medium">
                 O/U {sim.simulatedTotal}
               </div>
-              <div className="mt-1 text-[10px] text-emerald-400/80 font-mono">
+              <div className="mt-1 text-[10px] text-racing-600 font-mono font-bold">
                 {sim.homeWinPct}% Win Prob
               </div>
             </div>
@@ -239,14 +239,14 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
         </div>
 
         {/* Environmental Indicators Strip */}
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-slate-950/40 px-3.5 py-2 text-xs text-slate-400 border border-slate-800/60">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 px-3.5 py-2 text-xs text-slate-600 border border-slate-200">
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5">
-              <Wind className="h-3.5 w-3.5 text-cyan-400" />
+            <span className="flex items-center gap-1.5 font-medium">
+              <Wind className="h-3.5 w-3.5 text-blue-600" />
               <span>{matchup.weather.windMph} MPH Wind</span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <CloudRain className="h-3.5 w-3.5 text-slate-400" />
+            <span className="flex items-center gap-1.5 font-medium">
+              <CloudRain className="h-3.5 w-3.5 text-slate-500" />
               <span>{matchup.weather.tempF}°F ({matchup.weather.description})</span>
             </span>
           </div>
@@ -256,22 +256,22 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
             <button
               onClick={fetchAiAnalysis}
               disabled={isAnalyzing}
-              className="flex items-center gap-1.5 rounded-md bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-1 text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-300 transition-all shadow-sm"
+              className="flex items-center gap-1.5 rounded-lg bg-orange-50 border border-orange-200 px-3 py-1.5 text-xs font-bold text-orange-600 hover:bg-orange-500 hover:text-white transition-all shadow-sm"
             >
               {isAnalyzing ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-orange-500" />
               ) : (
-                <Bot className="h-3.5 w-3.5 text-cyan-400" />
+                <Bot className="h-3.5 w-3.5" />
               )}
               <span>{isAnalyzing ? 'Scouting...' : 'Ask AI Scout'}</span>
             </button>
 
             <button
               onClick={() => setShowWhatIf(!showWhatIf)}
-              className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-colors ${
+              className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 hasPerturbations || showWhatIf 
-                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
-                  : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800'
+                  ? 'bg-purple-100 text-purple-700 border border-purple-300' 
+                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
               }`}
             >
               <Sliders className="h-3.5 w-3.5" />
@@ -280,7 +280,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="flex items-center gap-1 rounded-md bg-slate-800/80 px-2.5 py-1 text-slate-300 hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1 rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <span>{showDetails ? 'Hide Receipts' : 'View Receipts'}</span>
               {showDetails ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -290,26 +290,26 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
         {/* Live Gemini AI Scout Briefing Box */}
         {showAiModal && (
-          <div className="mt-4 rounded-xl border border-cyan-500/40 bg-gradient-to-br from-cyan-950/20 via-slate-900/90 to-emerald-950/20 p-4 shadow-xl backdrop-blur-md animate-fadeIn">
-            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-2 mb-2.5">
+          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 shadow-sm animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-blue-200/80 pb-2 mb-2.5">
               <div className="flex items-center gap-2">
-                <Bot className="h-4 w-4 text-cyan-400" />
-                <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
+                <Bot className="h-4 w-4 text-blue-600" />
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
                   Gemini 3.8 Flash Tactical Scouting Intelligence
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+              <span className="text-[10px] font-mono text-orange-600 bg-orange-100 px-2 py-0.5 rounded font-bold border border-orange-200">
                 LIVE EDGE AI
               </span>
             </div>
 
             {isAnalyzing ? (
-              <div className="py-4 flex items-center justify-center gap-2 text-xs text-slate-400">
-                <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
+              <div className="py-4 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                 <span>Interrogating Trench & Pass-Rush Matrices with Gemini 3.8...</span>
               </div>
             ) : (
-              <p className="text-xs text-slate-200 leading-relaxed font-sans">
+              <p className="text-xs text-slate-800 leading-relaxed font-sans font-medium">
                 {aiAnalysis}
               </p>
             )}
@@ -318,16 +318,16 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
         {/* What-If Counterfactual Sandbox (Perturbations) */}
         {showWhatIf && (
-          <div className="mt-4 rounded-xl border border-purple-500/30 bg-purple-950/10 p-4 animate-fadeIn">
-            <div className="flex items-center justify-between mb-3 border-b border-purple-500/20 pb-2">
-              <div className="flex items-center gap-2 text-purple-300 text-xs font-bold uppercase tracking-wider">
+          <div className="mt-4 rounded-xl border border-purple-200 bg-purple-50/40 p-4 animate-fadeIn">
+            <div className="flex items-center justify-between mb-3 border-b border-purple-200 pb-2">
+              <div className="flex items-center gap-2 text-purple-800 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="h-4 w-4" />
                 <span>Client-Side Counterfactual Simulator (10,000 Runs)</span>
               </div>
               {hasPerturbations && (
                 <button
                   onClick={resetPerturbations}
-                  className="flex items-center gap-1 text-[11px] text-purple-300 hover:text-white"
+                  className="flex items-center gap-1 text-[11px] font-bold text-purple-700 hover:text-purple-900"
                 >
                   <RotateCcw className="h-3 w-3" /> Reset
                 </button>
@@ -347,10 +347,10 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
             <div className="flex flex-wrap gap-2 text-xs">
               <button
                 onClick={() => setHomeQBOut(!homeQBOut)}
-                className={`rounded-lg px-3 py-1.5 border transition-colors ${
+                className={`rounded-lg px-3 py-1.5 border transition-all ${
                   homeQBOut 
-                    ? 'bg-rose-500/20 border-rose-500 text-rose-300 font-bold' 
-                    : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
+                    ? 'bg-rose-100 border-rose-400 text-rose-800 font-bold shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Simulate {matchup.homeTeam.name} QB Out
@@ -358,10 +358,10 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
               <button
                 onClick={() => setHomeLTOut(!homeLTOut)}
-                className={`rounded-lg px-3 py-1.5 border transition-colors ${
+                className={`rounded-lg px-3 py-1.5 border transition-all ${
                   homeLTOut 
-                    ? 'bg-rose-500/20 border-rose-500 text-rose-300 font-bold' 
-                    : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
+                    ? 'bg-rose-100 border-rose-400 text-rose-800 font-bold shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Simulate {matchup.homeTeam.name} LT Out (Blindside Collapse)
@@ -369,10 +369,10 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
               <button
                 onClick={() => setAwayDEOut(!awayDEOut)}
-                className={`rounded-lg px-3 py-1.5 border transition-colors ${
+                className={`rounded-lg px-3 py-1.5 border transition-all ${
                   awayDEOut 
-                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold' 
-                    : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
+                    ? 'bg-emerald-100 border-emerald-400 text-racing-600 font-bold shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Simulate {matchup.awayTeam.name} Top Edge Rusher Out
@@ -380,10 +380,10 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
               <button
                 onClick={() => setForceDome(!forceDome)}
-                className={`rounded-lg px-3 py-1.5 border transition-colors ${
+                className={`rounded-lg px-3 py-1.5 border transition-all ${
                   forceDome 
-                    ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold' 
-                    : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
+                    ? 'bg-blue-100 border-blue-400 text-blue-800 font-bold shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Play in Dome (0 MPH Wind)
@@ -391,10 +391,10 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
               <button
                 onClick={() => setWindOverride(windOverride === 22 ? undefined : 22)}
-                className={`rounded-lg px-3 py-1.5 border transition-colors ${
+                className={`rounded-lg px-3 py-1.5 border transition-all ${
                   windOverride === 22 
-                    ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold' 
-                    : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600'
+                    ? 'bg-blue-100 border-blue-400 text-blue-800 font-bold shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                 }`}
               >
                 Test 22 MPH Gusts (Passing Decay)
@@ -405,7 +405,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
 
         {/* Expandable Details: Trench Heatmap & Receipts Ledger */}
         {showDetails && (
-          <div className="mt-4 space-y-4 border-t border-slate-800 pt-4 animate-fadeIn">
+          <div className="mt-4 space-y-4 border-t border-slate-200 pt-4 animate-fadeIn">
             {/* 1. Trench Heatmap */}
             <TrenchHeatmap
               homeName={matchup.homeTeam.name}
@@ -415,10 +415,10 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
             />
 
             {/* 2. Explainable AI Receipts Ledger */}
-            <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-              <div className="flex items-center gap-2 mb-3 border-b border-slate-800/80 pb-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 border-b border-slate-200 pb-2">
+                <CheckCircle2 className="h-4 w-4 text-racing-600" />
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
                   The Edge Receipts (Itemized Model Factors)
                 </span>
               </div>
@@ -427,24 +427,24 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                 {matchup.receipts.map((receipt) => (
                   <div 
                     key={receipt.id}
-                    className="flex items-start justify-between gap-3 rounded-lg border border-slate-800/60 bg-slate-900/40 p-2.5"
+                    className="flex items-start justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-xs"
                   >
                     <div className="space-y-0.5">
-                      <span className="inline-block rounded bg-slate-800 px-2 py-0.5 text-[10px] font-mono font-bold text-slate-300">
+                      <span className="inline-block rounded bg-slate-100 border border-slate-200 px-2 py-0.5 text-[10px] font-mono font-bold text-slate-700">
                         {receipt.category}
                       </span>
-                      <p className="text-xs text-slate-300 leading-relaxed">
+                      <p className="text-xs text-slate-700 leading-relaxed font-medium">
                         {receipt.description}
                       </p>
                     </div>
 
                     <div className="text-right whitespace-nowrap">
                       <span className={`font-mono text-xs font-bold ${
-                        receipt.direction === 'HOME_FAVORED' ? 'text-emerald-400' : 'text-cyan-400'
+                        receipt.direction === 'HOME_FAVORED' ? 'text-racing-600' : 'text-blue-600'
                       }`}>
                         {receipt.impactPoints > 0 ? `+${receipt.impactPoints}` : receipt.impactPoints} PTS
                       </span>
-                      <span className="block text-[10px] text-slate-500 font-mono">
+                      <span className="block text-[10px] text-slate-400 font-mono">
                         {receipt.direction === 'HOME_FAVORED' ? matchup.homeTeam.abbreviation : matchup.awayTeam.abbreviation}
                       </span>
                     </div>

@@ -51,22 +51,22 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
   const linePath = `M ${points.join(' L ')}`;
   const areaPath = `M ${getX(filtered[0]?.margin || minMargin)},${height - paddingY} L ${points.join(' L ')} L ${getX(filtered[filtered.length - 1]?.margin || maxMargin)},${height - paddingY} Z`;
 
-  const marketSpreadX = getX(-marketSpread); // Market spread on home margin axis
+  const marketSpreadX = getX(-marketSpread);
   const modelSpreadX = getX(-simulatedSpread);
 
   return (
-    <div className="w-full rounded-xl border border-purple-500/30 bg-slate-950/80 p-4 my-3 backdrop-blur-md">
+    <div className="w-full rounded-xl border border-slate-200 bg-white p-4 my-3 shadow-sm">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-purple-300">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
             Probability Distribution Curve (10,000 Monte Carlo Runs)
           </span>
         </div>
         <div className="flex items-center gap-4 text-[11px] font-mono">
-          <span className="text-emerald-400 font-bold">
+          <span className="text-racing-600 font-bold">
             {homeName} Win: {homeWinPct}%
           </span>
-          <span className="text-cyan-400 font-bold">
+          <span className="text-blue-600 font-bold">
             {awayName} Win: {(100 - homeWinPct).toFixed(1)}%
           </span>
         </div>
@@ -78,17 +78,17 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
           className="w-full h-auto overflow-visible select-none"
         >
           <defs>
-            {/* Gradient fill under the curve */}
-            <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#00F5A0" stop-opacity="0.35" />
-              <stop offset="60%" stop-color="#00D2FF" stop-opacity="0.15" />
-              <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+            {/* Swiss Clean Gradient Fill */}
+            <linearGradient id="swissCurveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#059669" stop-opacity="0.25" />
+              <stop offset="80%" stop-color="#3B82F6" stop-opacity="0.08" />
+              <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
             </linearGradient>
 
-            <linearGradient id="strokeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#00D2FF" />
-              <stop offset="50%" stop-color="#00F5A0" />
-              <stop offset="100%" stop-color="#FFB800" />
+            <linearGradient id="swissStrokeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#2563EB" />
+              <stop offset="50%" stop-color="#059669" />
+              <stop offset="100%" stop-color="#FF4800" />
             </linearGradient>
           </defs>
 
@@ -98,14 +98,14 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
             y1={paddingY - 5}
             x2={getX(0)}
             y2={height - paddingY}
-            stroke="#334460"
+            stroke="#CBD5E1"
             strokeWidth="1.5"
             strokeDasharray="4 4"
           />
           <text 
             x={getX(0)} 
             y={paddingY - 8} 
-            fill="#64748B" 
+            fill="#94A3B8" 
             fontSize="9" 
             textAnchor="middle"
             fontFamily="monospace"
@@ -114,13 +114,13 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
           </text>
 
           {/* Area Fill */}
-          <path d={areaPath} fill="url(#curveGradient)" />
+          <path d={areaPath} fill="url(#swissCurveGradient)" />
 
           {/* Stroke Curve */}
           <path
             d={linePath}
             fill="none"
-            stroke="url(#strokeGradient)"
+            stroke="url(#swissStrokeGradient)"
             strokeWidth="2.5"
             strokeLinecap="round"
           />
@@ -141,7 +141,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
               <text
                 x={marketSpreadX}
                 y={paddingY + 30}
-                fill="#94A3B8"
+                fill="#475569"
                 fontSize="9"
                 fontWeight="bold"
                 textAnchor="middle"
@@ -160,14 +160,14 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
                 y1={paddingY - 5}
                 x2={modelSpreadX}
                 y2={height - paddingY}
-                stroke="#00F5A0"
+                stroke="#FF4800"
                 strokeWidth="2"
               />
-              <circle cx={modelSpreadX} cy={paddingY} r="4" fill="#00F5A0" />
+              <circle cx={modelSpreadX} cy={paddingY} r="4" fill="#FF4800" />
               <text
                 x={modelSpreadX}
                 y={paddingY + 12}
-                fill="#00F5A0"
+                fill="#FF4800"
                 fontSize="10"
                 fontWeight="bold"
                 textAnchor="middle"
@@ -184,7 +184,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
             y1={height - paddingY}
             x2={width - paddingX}
             y2={height - paddingY}
-            stroke="#222F46"
+            stroke="#CBD5E1"
             strokeWidth="1"
           />
 
@@ -196,13 +196,13 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
                 y1={height - paddingY}
                 x2={getX(tick)}
                 y2={height - paddingY + 4}
-                stroke="#334460"
+                stroke="#CBD5E1"
                 strokeWidth="1"
               />
               <text
                 x={getX(tick)}
                 y={height - paddingY + 14}
-                fill="#64748B"
+                fill="#94A3B8"
                 fontSize="8"
                 textAnchor="middle"
                 fontFamily="monospace"
@@ -214,9 +214,9 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
         </svg>
       </div>
 
-      <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-mono">
+      <div className="flex justify-between items-center text-[10px] text-slate-500 mt-2 font-mono">
         <span>← {awayName} Blowout Margin</span>
-        <span className="text-purple-300 font-semibold">Margin of Victory (Points)</span>
+        <span className="text-slate-700 font-semibold">Margin of Victory (Points)</span>
         <span>{homeName} Blowout Margin →</span>
       </div>
     </div>

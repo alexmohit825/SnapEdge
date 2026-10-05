@@ -7,30 +7,33 @@ export default {
   theme: {
     extend: {
       colors: {
+        canvas: {
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+        },
         slate: {
-          950: '#070A10',
-          900: '#0B0F17',
-          850: '#101622',
-          800: '#151E2E',
-          700: '#222F46',
+          850: '#1E293B',
+          900: '#0F172A',
+          950: '#020617',
         },
-        emerald: {
-          400: '#00F5A0',
-          500: '#00D68B',
+        orange: {
+          500: '#FF4800', // International Safety / McLaren Orange
+          600: '#E03E00',
         },
-        cyan: {
-          400: '#00D2FF',
-          500: '#00B4DB',
+        racing: {
+          500: '#059669', // Alpine / British Racing Green
+          600: '#047857',
         },
-        amber: {
-          400: '#FFB800',
-        },
-        rose: {
-          400: '#FF3366',
-        }
       },
       fontFamily: {
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      boxShadow: {
+        'swiss': '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 8px 24px -4px rgba(15, 23, 42, 0.06)',
+        'swiss-hover': '0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 16px 32px -4px rgba(15, 23, 42, 0.10)',
+        'orange-glow': '0 4px 20px rgba(255, 72, 0, 0.25)',
       }
     },
   },
