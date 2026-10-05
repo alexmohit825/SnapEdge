@@ -71,14 +71,13 @@ export default {
         const body: { prompt?: string; matchupTitle?: string } = await request.json();
         const promptText = body.prompt || `Provide a sharp 2-sentence scout summary on trench physics and latent advantages for ${body.matchupTitle || 'this matchup'}. Focus on pass block win rate vs pass rush pressure.`;
 
-        // Try gemini-3.8-flash with fallback to gemini-2.5-flash on high-demand spikes
-        const candidateModels = ['gemini-3.8-flash', 'gemini-2.5-flash'];
+        // Use Gemini 3.8 Flash with exponential backoff on demand spikes
         let geminiRes: Response | null = null;
         let lastErrorText = '';
 
-        for (const model of candidateModels) {
+        for (let attempt = 0; attempt < 3; attempt++) {
           try {
-            geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+            geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -88,6 +87,11 @@ export default {
 
             if (geminiRes.ok) break;
             lastErrorText = await geminiRes.text();
+            
+            // If 503 high demand spike, brief 600ms backoff before retry
+            if (geminiRes.status === 503) {
+              await new Promise(r => setTimeout(r, 600));
+            }
           } catch (e: any) {
             lastErrorText = e.message;
           }

@@ -12,7 +12,9 @@ import {
   Sparkles, 
   CheckCircle2, 
   RotateCcw,
-  Zap
+  Zap,
+  Bot,
+  Loader2
 } from 'lucide-react';
 
 interface MatchupCardProps {
@@ -29,6 +31,42 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
   const [homeQBOut, setHomeQBOut] = useState(false);
   const [homeLTOut, setHomeLTOut] = useState(false);
   const [awayDEOut, setAwayDEOut] = useState(false);
+
+  // Live Gemini AI Scout State
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showAiModal, setShowAiModal] = useState(false);
+
+  const fetchAiAnalysis = async () => {
+    if (aiAnalysis) {
+      setShowAiModal(!showAiModal);
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setShowAiModal(true);
+    try {
+      const res = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          matchupTitle: `${matchup.awayTeam.name} at ${matchup.homeTeam.name}`,
+          prompt: `Act as an elite NFL/CFB trench analyst for ${matchup.awayTeam.name} vs ${matchup.homeTeam.name}. In 2 sharp sentences, explain the decisive trench mismatch between the pass protection (PBWR: ${matchup.homeTeam.trench.passBlockWinRate}% vs ${matchup.awayTeam.trench.passRushWinRate}%) and why the market spread (${matchup.market.spread}) is vulnerable to our SnapEdge fair spread (${matchup.model.fairSpread}).`
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setAiAnalysis(data.analysis || 'Analysis ready.');
+      } else {
+        setAiAnalysis('Gemini AI Scout is analyzing heavy game traffic. Please tap again in 5 seconds.');
+      }
+    } catch {
+      setAiAnalysis('Connection to Cloudflare AI Gateway was interrupted. Please retry.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   // Compute live Monte Carlo simulation based on user perturbations
   const sim: SimulationResult = runMonteCarloSimulation(matchup, {
@@ -214,6 +252,20 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Ask AI Scout Button */}
+            <button
+              onClick={fetchAiAnalysis}
+              disabled={isAnalyzing}
+              className="flex items-center gap-1.5 rounded-md bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-1 text-xs font-bold text-emerald-300 hover:text-white hover:border-emerald-300 transition-all shadow-sm"
+            >
+              {isAnalyzing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-400" />
+              ) : (
+                <Bot className="h-3.5 w-3.5 text-cyan-400" />
+              )}
+              <span>{isAnalyzing ? 'Scouting...' : 'Ask AI Scout'}</span>
+            </button>
+
             <button
               onClick={() => setShowWhatIf(!showWhatIf)}
               className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-colors ${
@@ -235,6 +287,34 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
             </button>
           </div>
         </div>
+
+        {/* Live Gemini AI Scout Briefing Box */}
+        {showAiModal && (
+          <div className="mt-4 rounded-xl border border-cyan-500/40 bg-gradient-to-br from-cyan-950/20 via-slate-900/90 to-emerald-950/20 p-4 shadow-xl backdrop-blur-md animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-2 mb-2.5">
+              <div className="flex items-center gap-2">
+                <Bot className="h-4 w-4 text-cyan-400" />
+                <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
+                  Gemini 3.8 Flash Tactical Scouting Intelligence
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                LIVE EDGE AI
+              </span>
+            </div>
+
+            {isAnalyzing ? (
+              <div className="py-4 flex items-center justify-center gap-2 text-xs text-slate-400">
+                <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
+                <span>Interrogating Trench & Pass-Rush Matrices with Gemini 3.8...</span>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-200 leading-relaxed font-sans">
+                {aiAnalysis}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* What-If Counterfactual Sandbox (Perturbations) */}
         {showWhatIf && (
