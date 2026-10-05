@@ -97,6 +97,19 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
           <span className="rounded-md bg-white border border-slate-200 px-2.5 py-0.5 text-xs font-mono font-bold text-slate-800 shadow-sm">
             {matchup.league} • WEEK {matchup.week}
           </span>
+          {matchup.status === 'FINAL' ? (
+            <span className="rounded-full bg-slate-900 text-emerald-400 font-mono text-[10px] font-black px-2.5 py-0.5 uppercase tracking-wider">
+              FINAL
+            </span>
+          ) : matchup.status === 'IN_PROGRESS' ? (
+            <span className="rounded-full bg-rose-600 text-white font-mono text-[10px] font-black px-2.5 py-0.5 uppercase tracking-wider animate-pulse">
+              LIVE
+            </span>
+          ) : (
+            <span className="rounded-full bg-slate-100 text-slate-600 font-mono text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider">
+              SCHEDULED
+            </span>
+          )}
           <span className="text-xs text-slate-500 font-medium">
             {matchup.stadium} ({matchup.location})
           </span>
@@ -152,12 +165,22 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                 </div>
               </div>
 
-              {/* Away Proj Score */}
-              <div className="text-right">
-                <span className="text-2xl font-mono font-black text-slate-900">
-                  {sim.projectedScoreAway}
-                </span>
-                <span className="block text-[10px] uppercase font-mono text-slate-400">Proj</span>
+              {/* Away Proj & Actual Score */}
+              <div className="flex items-center gap-4">
+                {matchup.actualScore && (
+                  <div className="text-right bg-slate-900 text-white px-3 py-1 rounded-xl shadow-xs border border-slate-800">
+                    <span className="text-2xl font-mono font-black text-emerald-400">
+                      {matchup.actualScore.away}
+                    </span>
+                    <span className="block text-[9px] uppercase font-mono tracking-wider text-slate-300 font-bold">Actual</span>
+                  </div>
+                )}
+                <div className="text-right">
+                  <span className="text-2xl font-mono font-black text-slate-800">
+                    {sim.projectedScoreAway}
+                  </span>
+                  <span className="block text-[10px] uppercase font-mono text-slate-400 font-medium">Pred</span>
+                </div>
               </div>
             </div>
 
@@ -192,12 +215,22 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                 </div>
               </div>
 
-              {/* Home Proj Score */}
-              <div className="text-right">
-                <span className="text-2xl font-mono font-black text-slate-900">
-                  {sim.projectedScoreHome}
-                </span>
-                <span className="block text-[10px] uppercase font-mono text-slate-400">Proj</span>
+              {/* Home Proj & Actual Score */}
+              <div className="flex items-center gap-4">
+                {matchup.actualScore && (
+                  <div className="text-right bg-slate-900 text-white px-3 py-1 rounded-xl shadow-xs border border-slate-800">
+                    <span className="text-2xl font-mono font-black text-emerald-400">
+                      {matchup.actualScore.home}
+                    </span>
+                    <span className="block text-[9px] uppercase font-mono tracking-wider text-slate-300 font-bold">Actual</span>
+                  </div>
+                )}
+                <div className="text-right">
+                  <span className="text-2xl font-mono font-black text-slate-800">
+                    {sim.projectedScoreHome}
+                  </span>
+                  <span className="block text-[10px] uppercase font-mono text-slate-400 font-medium">Pred</span>
+                </div>
               </div>
             </div>
           </div>

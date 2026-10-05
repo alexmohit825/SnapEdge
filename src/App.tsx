@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { SAMPLE_MATCHUPS } from './data/sampleMatchups';
 import type { League, Matchup } from './types/football';
 import { EdgeExplainer } from './components/EdgeExplainer';
+import { AccuracyStats } from './components/AccuracyStats';
 import { MatchupCard } from './components/MatchupCard';
 import { 
   Zap, 
@@ -118,6 +119,9 @@ export function App() {
 
       {/* Main Container */}
       <main className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+        {/* Prediction Accuracy Percentage KPIs (As soon as app opens) */}
+        <AccuracyStats matchups={matchups} />
+
         {/* Beginner-Friendly Explainer Hub */}
         <EdgeExplainer />
 

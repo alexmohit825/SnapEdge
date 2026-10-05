@@ -59,6 +59,13 @@ export interface Matchup {
     precipitationPct: number;
     description: string;
   };
+
+  // Game Status & Actual Scores (for completed games)
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'FINAL';
+  actualScore?: {
+    home: number;
+    away: number;
+  };
   
   // Teams
   homeTeam: TeamProfile;

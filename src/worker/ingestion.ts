@@ -149,6 +149,12 @@ export default {
             const homeRank = homeComp.curatedRank?.current <= 25 ? homeComp.curatedRank.current : undefined;
             const awayRank = awayComp.curatedRank?.current <= 25 ? awayComp.curatedRank.current : undefined;
 
+            const homeScore = parseInt(homeComp.score || '0', 10);
+            const awayScore = parseInt(awayComp.score || '0', 10);
+            const isCompleted = ev.status?.type?.completed === true || ev.status?.type?.state === 'post';
+            const isInProgress = ev.status?.type?.state === 'in';
+            const gameStatus: 'SCHEDULED' | 'IN_PROGRESS' | 'FINAL' = isCompleted ? 'FINAL' : isInProgress ? 'IN_PROGRESS' : 'SCHEDULED';
+
             return {
               id: `${league.toLowerCase()}_live_${ev.id || idx}`,
               league,
@@ -158,6 +164,11 @@ export default {
               location: `${comp.venue?.address?.city || 'Campus'}, ${comp.venue?.address?.state || 'USA'}`,
               isDome: comp.venue?.indoor || false,
               surface: 'FieldTurf',
+              status: gameStatus,
+              actualScore: isCompleted || isInProgress ? {
+                home: homeScore,
+                away: awayScore,
+              } : undefined,
               weather: {
                 tempF: 68,
                 windMph: 8,
