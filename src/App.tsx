@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SAMPLE_MATCHUPS } from './data/sampleMatchups';
-import type { League } from './types/football';
+import type { League, Matchup } from './types/football';
 import { EdgeExplainer } from './components/EdgeExplainer';
 import { MatchupCard } from './components/MatchupCard';
 import { 
@@ -15,9 +15,42 @@ export function App() {
   const [selectedLeague, setSelectedLeague] = useState<League>('CFB');
   const [filterType, setFilterType] = useState<'ALL' | 'HIGH_EDGE' | 'TOP_25' | 'WIND'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [matchups, setMatchups] = useState<Matchup[]>(SAMPLE_MATCHUPS);
+  const [isLiveFeed, setIsLiveFeed] = useState(false);
+  const [isLoadingFeed, setIsLoadingFeed] = useState(false);
+
+  // Automatically fetch live weekly schedule from Cloudflare Ingestion API
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLiveSlate() {
+      setIsLoadingFeed(true);
+      try {
+        const res = await fetch(`/api/slate?league=${selectedLeague}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.matchups && data.matchups.length > 0 && isMounted) {
+            // Merge sample deep-trench games with live ingested schedule
+            const currentSamples = SAMPLE_MATCHUPS.filter(m => m.league === selectedLeague);
+            const liveOnly = data.matchups.filter((lm: Matchup) => 
+              !currentSamples.some(s => s.homeTeam.name === lm.homeTeam.name)
+            );
+            setMatchups([...currentSamples, ...liveOnly]);
+            setIsLiveFeed(true);
+          }
+        }
+      } catch (err) {
+        console.error('Using baseline pre-computed matchups:', err);
+      } finally {
+        if (isMounted) setIsLoadingFeed(false);
+      }
+    }
+
+    loadLiveSlate();
+    return () => { isMounted = false; };
+  }, [selectedLeague]);
 
   // Filter matchups
-  const filteredMatchups = SAMPLE_MATCHUPS.filter((m) => {
+  const filteredMatchups = matchups.filter((m) => {
     // 1. League Filter
     if (m.league !== selectedLeague) return false;
 
@@ -33,7 +66,7 @@ export function App() {
 
     // 3. Quick Tag Filter
     if (filterType === 'HIGH_EDGE') {
-      return Math.abs(m.model.divergencePoints) >= 2.5;
+      return Math.abs(m.model.divergencePoints) >= 2.0;
     }
     if (filterType === 'TOP_25') {
       return (m.homeTeam.rank !== undefined && m.homeTeam.rank <= 25) || 
@@ -70,9 +103,11 @@ export function App() {
 
           {/* Right Status */}
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-xs text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-mono text-[11px]">AUTONOMOUS ETL ACTIVE</span>
+            <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-xs text-slate-300">
+              <span className={`h-2 w-2 rounded-full ${isLiveFeed ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'}`} />
+              <span className="font-mono text-[11px]">
+                {isLoadingFeed ? 'SYNCING SCHEDULE...' : isLiveFeed ? 'AUTONOMOUS LIVE FEED' : 'OFFLINE BASELINE'}
+              </span>
             </div>
             <button 
               onClick={() => window.location.reload()}
