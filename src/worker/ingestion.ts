@@ -10,6 +10,7 @@
 export interface Env {
   CFBD_API_KEY?: string;
   ODDS_API_KEY?: string;
+  GEMINI_API_KEY?: string;
 }
 
 export interface ScheduledEvent {
@@ -41,9 +42,81 @@ export default {
     );
   },
 
-  // 2. Edge API HTTP Endpoint (Serves pre-calculated matchup vectors to client PWA)
-  async fetch(request: Request, _env: Env): Promise<Response> {
+  // 2. Edge API HTTP Endpoint (Serves pre-calculated matchup vectors & AI Insights)
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    // Enable CORS
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    };
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
+
+    // AI Scouting & Trench Analysis Endpoint (Google Gemini 3.8 Flash)
+    if (url.pathname === '/api/ai/analyze' && request.method === 'POST') {
+      try {
+        const apiKey = env.GEMINI_API_KEY;
+        if (!apiKey) {
+          return new Response(JSON.stringify({ error: 'GEMINI_API_KEY secret not configured' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        const body: { prompt?: string; matchupTitle?: string } = await request.json();
+        const promptText = body.prompt || `Provide a sharp 2-sentence scout summary on trench physics and latent advantages for ${body.matchupTitle || 'this matchup'}. Focus on pass block win rate vs pass rush pressure.`;
+
+        // Try gemini-3.8-flash with fallback to gemini-2.5-flash on high-demand spikes
+        const candidateModels = ['gemini-3.8-flash', 'gemini-2.5-flash'];
+        let geminiRes: Response | null = null;
+        let lastErrorText = '';
+
+        for (const model of candidateModels) {
+          try {
+            geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }] }]
+              })
+            });
+
+            if (geminiRes.ok) break;
+            lastErrorText = await geminiRes.text();
+          } catch (e: any) {
+            lastErrorText = e.message;
+          }
+        }
+
+        if (!geminiRes || !geminiRes.ok) {
+          return new Response(JSON.stringify({ error: 'Gemini API Error', details: lastErrorText }), {
+            status: geminiRes ? geminiRes.status : 503,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        const geminiData: any = await geminiRes.json();
+        const analysisText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'No analysis generated.';
+
+        return new Response(JSON.stringify({
+          status: 'OK',
+          model: 'gemini-3.8-flash',
+          analysis: analysisText
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
 
     // API Route: Live Matchup Slate
     if (url.pathname === '/api/slate') {
@@ -56,14 +129,14 @@ export default {
         lastUpdated: new Date().toISOString(),
       }), {
         headers: {
+          ...corsHeaders,
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
           'Cache-Control': 'public, max-age=60',
         }
       });
     }
 
-    return new Response('SnapEdge Autonomous Edge Gateway', { status: 200 });
+    return new Response('SnapEdge Autonomous Edge Gateway', { status: 200, headers: corsHeaders });
   }
 };
 

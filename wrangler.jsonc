@@ -1,11 +1,14 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "snapedge",
+  "main": "src/worker/ingestion.ts",
   "compatibility_date": "2026-09-18",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "not_found_handling": "single-page-application"
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": false
   }
 }
