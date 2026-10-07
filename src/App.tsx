@@ -15,7 +15,8 @@ import {
 
 export function App() {
   const [selectedLeague, setSelectedLeague] = useState<League>('CFB');
-  const [selectedWeek, setSelectedWeek] = useState<number>(6); // Default CFB Week 6, NFL Week 5
+  const [selectedWeek, setSelectedWeek] = useState<number>(6); // CFB Week 6, NFL Week 4
+  const [hasExplicitWeek, setHasExplicitWeek] = useState(false);
   const [filterType, setFilterType] = useState<'ALL' | 'HIGH_EDGE' | 'TOP_25' | 'WIND'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [matchups, setMatchups] = useState<Matchup[]>(SAMPLE_MATCHUPS);
@@ -25,7 +26,8 @@ export function App() {
   // Switch default week when league toggles
   const handleLeagueChange = (league: League) => {
     setSelectedLeague(league);
-    setSelectedWeek(league === 'CFB' ? 6 : 5);
+    setHasExplicitWeek(false);
+    setSelectedWeek(league === 'CFB' ? 6 : 4);
   };
 
   // Automatically fetch live weekly schedule from Cloudflare Ingestion API
@@ -34,12 +36,16 @@ export function App() {
     async function loadLiveSlate() {
       setIsLoadingFeed(true);
       try {
-        const res = await fetch(`/api/slate?league=${selectedLeague}&week=${selectedWeek}`);
+        const query = hasExplicitWeek ? `?league=${selectedLeague}&week=${selectedWeek}` : `?league=${selectedLeague}`;
+        const res = await fetch(`/api/slate${query}`);
         if (res.ok) {
           const data = await res.json();
           if (data.matchups && data.matchups.length > 0 && isMounted) {
             setMatchups(data.matchups);
             setIsLiveFeed(true);
+            if (!hasExplicitWeek && data.currentWeek) {
+              setSelectedWeek(data.currentWeek);
+            }
           }
         }
       } catch (err) {
@@ -51,7 +57,7 @@ export function App() {
 
     loadLiveSlate();
     return () => { isMounted = false; };
-  }, [selectedLeague, selectedWeek]);
+  }, [selectedLeague, selectedWeek, hasExplicitWeek]);
 
   // Filter matchups
   const filteredMatchups = matchups.filter((m) => {
@@ -219,7 +225,10 @@ export function App() {
           {Array.from({ length: selectedLeague === 'CFB' ? 15 : 18 }, (_, i) => i + 1).map((w) => (
             <button
               key={w}
-              onClick={() => setSelectedWeek(w)}
+              onClick={() => {
+                setHasExplicitWeek(true);
+                setSelectedWeek(w);
+              }}
               className={`px-3 py-1 text-xs font-mono font-bold rounded-lg border transition-all flex-shrink-0 shadow-xs ${
                 selectedWeek === w
                   ? 'bg-slate-900 text-white border-slate-900'
