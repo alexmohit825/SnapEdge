@@ -287,13 +287,29 @@ Provide a sharp, quantitative markdown report.`;
             const awayPRWR = Math.min(78, Math.max(45, Math.round(baseAwayPRWR)));
 
             // SnapEdge Model Fair Line calculation (Trench & EPA driven)
-            const trenchEdgeHome = (homePBWR - awayPRWR) - (awayPBWR - homePRWR);
-            const talentBonusHome = (homeRank ? (26 - homeRank) : 0) - (awayRank ? (26 - awayRank) : 0);
-            const modelSpread = Number((marketSpread + (trenchEdgeHome * 0.15) - (talentBonusHome * 0.2)).toFixed(1));
+            // Apply non-linear pocket collapse penalty if PBWR falls under 58%
+            const calcTrenchPoints = (pbwr: number, prwr: number) => {
+              let pts = (pbwr - prwr) * 0.12;
+              if (pbwr < 58) {
+                pts -= Math.pow((58 - pbwr) / 8, 1.3) * 1.8;
+              }
+              return pts;
+            };
+
+            const trenchPointsHome = calcTrenchPoints(homePBWR, awayPRWR);
+            const trenchPointsAway = calcTrenchPoints(awayPBWR, homePRWR);
+            const trenchEdgeHome = trenchPointsHome - trenchPointsAway;
+
+            // College talent delta: non-linear advantage for top-5 rosters
+            const rankScore = (rank?: number) => rank ? Math.pow((26 - rank), 1.1) : 0;
+            const talentBonusHome = (rankScore(homeRank) - rankScore(awayRank)) * 0.16;
+
+            const modelSpread = Number((marketSpread + (trenchEdgeHome) - talentBonusHome).toFixed(1));
             const divergencePoints = Number((modelSpread - marketSpread).toFixed(1));
 
-            // Probability of winning
-            const homeWinPct = Number(Math.min(95, Math.max(10, 50 - (modelSpread * 2.8))).toFixed(1));
+            // Probability of winning with league-specific variance scaling
+            const spreadMultiplier = league === 'CFB' ? 3.1 : 2.5; // Steeper win certainty in CFB vs NFL parity
+            const homeWinPct = Number(Math.min(96, Math.max(8, 50 - (modelSpread * spreadMultiplier))).toFixed(1));
 
             return {
               id: `${league.toLowerCase()}_${ev.id || idx}`,

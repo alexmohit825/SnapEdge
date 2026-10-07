@@ -28,37 +28,50 @@ export function runMonteCarloSimulation(
     baseHomeStrength += talentDelta * 5.5; // Talent pedigree override
   }
 
-  // 3. Trench Leverage Vector (Pass Protection vs Rush Havoc)
-  const homePassProtectionDiff = homeTeam.trench.passBlockWinRate - awayTeam.trench.passRushWinRate;
-  const awayPassProtectionDiff = awayTeam.trench.passBlockWinRate - homeTeam.trench.passRushWinRate;
-  
-  baseHomeStrength += (homePassProtectionDiff / 100) * 4.0;
-  baseAwayStrength += (awayPassProtectionDiff / 100) * 4.0;
+  // 3. Non-Linear Sigmoidal Trench Leverage Vector (Physics Pocket Collapse)
+  // Logistic function penalizes pass protection non-linearly when PBWR drops below 58% (sub-2.4s pocket lifespan)
+  const calculateTrenchImpact = (pbwr: number, oppPrwr: number) => {
+    const rawDiff = pbwr - oppPrwr;
+    let impact = (rawDiff / 100) * 3.5;
+    if (pbwr < 58) {
+      // Exponential pocket breakdown penalty
+      const collapseSeverity = Math.pow((58 - pbwr) / 10, 1.4) * 2.2;
+      impact -= collapseSeverity;
+    }
+    return impact;
+  };
 
-  // 4. Apply Dynamic User Perturbations ("What-If" Studio)
+  baseHomeStrength += calculateTrenchImpact(homeTeam.trench.passBlockWinRate, awayTeam.trench.passRushWinRate);
+  baseAwayStrength += calculateTrenchImpact(awayTeam.trench.passBlockWinRate, homeTeam.trench.passRushWinRate);
+
+  // 4. Aerodynamic Quadratic Atmospheric Drag ("What-If" Studio & Radar)
   const activeWind = perturbations.forceDome 
     ? 0 
     : (perturbations.windMphOverride !== undefined ? perturbations.windMphOverride : weather.windMph);
 
-  // High wind penalizes passing games and deep scoring
-  const windPenalty = Math.max(0, (activeWind - 12) * 0.35);
+  // Aerodynamic drag on passing EPA & field-goal trajectories grows non-linearly above 12 MPH
+  const windPenalty = activeWind > 12 
+    ? Math.pow(activeWind - 12, 1.5) * 0.22 
+    : 0;
   
   if (perturbations.homeQBOut) {
     baseHomeStrength -= 6.8; // Backup QB value degradation
   }
   if (perturbations.homeLTOut) {
-    baseHomeStrength -= 2.9; // Blindside tackle collapse
+    baseHomeStrength -= 3.4; // Blindside tackle collapse non-linear penalty
   }
   if (perturbations.awayDEOut) {
     baseAwayStrength -= 2.2; // Edge rush Havoc reduction
   }
 
   // Baseline expected points
-  const expectedHomeScore = Math.max(10, 26 + baseHomeStrength - windPenalty);
-  const expectedAwayScore = Math.max(10, 23.5 + baseAwayStrength - windPenalty);
+  const expectedHomeScore = Math.max(9, 26 + baseHomeStrength - windPenalty);
+  const expectedAwayScore = Math.max(9, 23.5 + baseAwayStrength - windPenalty);
 
-  // Standard deviation of NFL/CFB single-game scoring drives
-  const scoreStdDev = matchup.league === 'CFB' ? 10.5 : 8.8;
+  // 5. CFP vs. NFL Variance Bifurcation
+  // NFL parity enforces key-number clustering and wider single-game distribution (stdDev 11.2)
+  // CFB talent gap enforces steeper, higher-confidence win margins (stdDev 9.8)
+  const scoreStdDev = matchup.league === 'CFB' ? 9.8 : 11.2;
 
   let homeWins = 0;
   let homeCovers = 0;
