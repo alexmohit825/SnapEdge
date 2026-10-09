@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { SAMPLE_MATCHUPS } from './data/sampleMatchups';
-import type { League, Matchup } from './types/football';
+import type { League, Matchup, ShadowConfig } from './types/football';
 import { EdgeExplainer } from './components/EdgeExplainer';
 import { AccuracyStats } from './components/AccuracyStats';
 import { RecursiveOptimizer } from './components/RecursiveOptimizer';
 import { MatchupCard } from './components/MatchupCard';
+import { getInitialShadowConfig } from './utils/shadowExperiments';
+import { auditSlateSanity } from './utils/sanityGuardrails';
 import { 
   Zap, 
   GraduationCap, 
@@ -19,9 +21,10 @@ export function App() {
   const [hasExplicitWeek, setHasExplicitWeek] = useState(false);
   const [filterType, setFilterType] = useState<'ALL' | 'HIGH_EDGE' | 'TOP_25' | 'WIND'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [matchups, setMatchups] = useState<Matchup[]>(SAMPLE_MATCHUPS);
+  const [matchups, setMatchups] = useState<Matchup[]>(() => auditSlateSanity(SAMPLE_MATCHUPS).sanitizedSlate);
   const [isLiveFeed, setIsLiveFeed] = useState(false);
   const [isLoadingFeed, setIsLoadingFeed] = useState(false);
+  const [shadowConfig, setShadowConfig] = useState<ShadowConfig>(getInitialShadowConfig());
 
   // Switch default week when league toggles
   const handleLeagueChange = (league: League) => {
@@ -41,7 +44,9 @@ export function App() {
         if (res.ok) {
           const data = await res.json();
           if (data.matchups && data.matchups.length > 0 && isMounted) {
-            setMatchups(data.matchups);
+            // Strictly enforce sanity rules across dates, scores, injuries, trench win rates
+            const { sanitizedSlate } = auditSlateSanity(data.matchups);
+            setMatchups(sanitizedSlate);
             setIsLiveFeed(true);
             if (!hasExplicitWeek && data.currentWeek) {
               setSelectedWeek(data.currentWeek);
@@ -132,8 +137,12 @@ export function App() {
         {/* Prediction Accuracy Percentage KPIs (As soon as app opens) */}
         <AccuracyStats matchups={matchups} />
 
-        {/* Recursive Learning & Meta-Optimization Engine */}
-        <RecursiveOptimizer matchups={matchups} />
+        {/* Recursive Learning & Meta-Optimization Engine with Shadow Mode */}
+        <RecursiveOptimizer 
+          matchups={matchups} 
+          shadowConfig={shadowConfig} 
+          onUpdateShadowConfig={setShadowConfig} 
+        />
 
         {/* Beginner-Friendly Explainer Hub */}
         <EdgeExplainer />
@@ -256,7 +265,7 @@ export function App() {
         {filteredMatchups.length > 0 ? (
           <div>
             {filteredMatchups.map((matchup) => (
-              <MatchupCard key={matchup.id} matchup={matchup} />
+              <MatchupCard key={matchup.id} matchup={matchup} shadowConfig={shadowConfig} />
             ))}
           </div>
         ) : (

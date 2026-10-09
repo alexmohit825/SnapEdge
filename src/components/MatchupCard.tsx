@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { Matchup, SimulationResult } from '../types/football';
-import { runMonteCarloSimulation } from '../utils/simulator';
+import type { Matchup, SimulationResult, ShadowConfig } from '../types/football';
+import { runMonteCarloSimulation, runComparisonSimulation, verifyDeterminism } from '../utils/simulator';
 import { TrenchHeatmap } from './TrenchHeatmap';
 import { DistributionChart } from './DistributionChart';
 import { 
@@ -11,17 +11,20 @@ import {
   Sliders, 
   Sparkles, 
   CheckCircle2, 
-  RotateCcw,
-  Zap,
-  Bot,
-  Loader2
+  RotateCcw, 
+  Zap, 
+  Bot, 
+  Loader2,
+  FlaskConical,
+  ShieldCheck
 } from 'lucide-react';
 
 interface MatchupCardProps {
   matchup: Matchup;
+  shadowConfig?: ShadowConfig;
 }
 
-export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
+export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showWhatIf, setShowWhatIf] = useState(false);
 
@@ -69,15 +72,27 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
     }
   };
 
-  // Compute live Monte Carlo simulation based on user perturbations
-  const sim: SimulationResult = runMonteCarloSimulation(matchup, {
+  const perturbations = {
     forceDome,
     windMphOverride: windOverride,
     homeQBOut,
     homeLTOut,
     homeCenterOut,
     awayDEOut,
-  });
+  };
+
+  // Compute live Monte Carlo simulation based on user perturbations (Production Engine)
+  const sim: SimulationResult = runMonteCarloSimulation(matchup, perturbations);
+
+  // Compute Shadow Mode Comparison if shadow mode is enabled
+  const isShadowActive = Boolean(shadowConfig?.enabled);
+  const comparison = runComparisonSimulation(matchup, perturbations, shadowConfig);
+
+  const [activeCurveMode, setActiveCurveMode] = useState<'PRODUCTION' | 'SHADOW'>('PRODUCTION');
+  const activeSim = (activeCurveMode === 'SHADOW' && isShadowActive) ? comparison.shadow : sim;
+
+  // Determinism Verification Check (Guarantees same input produces bitwise identical output)
+  const determinism = verifyDeterminism(matchup, perturbations);
 
   const hasPerturbations = forceDome || windOverride !== undefined || homeQBOut || homeLTOut || homeCenterOut || awayDEOut;
 
@@ -271,6 +286,24 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                 {sim.homeWinPct}% Win Prob
               </div>
             </div>
+
+            {/* Shadow Candidate Delta Row */}
+            {isShadowActive && comparison.activeExperimentsCount > 0 && (
+              <div className="col-span-2 mt-2 pt-2 border-t border-purple-200/80 bg-purple-50/70 rounded-lg p-2.5 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 font-bold text-purple-900">
+                  <FlaskConical className="w-3.5 h-3.5 text-purple-600 flex-shrink-0" />
+                  <span>Shadow ({comparison.activeExperimentsCount} tests):</span>
+                  <span className="font-mono text-purple-700">
+                    {comparison.shadow.simulatedSpread > 0 ? `+${comparison.shadow.simulatedSpread}` : comparison.shadow.simulatedSpread} ({comparison.shadow.homeWinPct}%)
+                  </span>
+                </div>
+                <span className={`font-mono font-bold text-[10px] px-2 py-0.5 rounded ${
+                  comparison.spreadDelta !== 0 ? 'bg-purple-200/80 text-purple-900 border border-purple-300' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  Δ {comparison.spreadDelta > 0 ? `+${comparison.spreadDelta}` : comparison.spreadDelta} pts
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -355,29 +388,64 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
         {/* What-If Counterfactual Sandbox (Perturbations) */}
         {showWhatIf && (
           <div className="mt-4 rounded-xl border border-purple-200 bg-purple-50/40 p-4 animate-fadeIn">
-            <div className="flex items-center justify-between mb-3 border-b border-purple-200 pb-2">
+            <div className="flex flex-wrap items-center justify-between mb-3 border-b border-purple-200 pb-2 gap-2">
               <div className="flex items-center gap-2 text-purple-800 text-xs font-bold uppercase tracking-wider">
                 <Sparkles className="h-4 w-4" />
                 <span>Client-Side Counterfactual Simulator (10,000 Runs)</span>
+                {determinism.isDeterministic && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-bold">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                    DETERMINISTIC [100% REPRODUCIBLE]
+                  </span>
+                )}
               </div>
-              {hasPerturbations && (
-                <button
-                  onClick={resetPerturbations}
-                  className="flex items-center gap-1 text-[11px] font-bold text-purple-700 hover:text-purple-900"
-                >
-                  <RotateCcw className="h-3 w-3" /> Reset
-                </button>
-              )}
+
+              <div className="flex items-center gap-2">
+                {isShadowActive && comparison.activeExperimentsCount > 0 && (
+                  <div className="inline-flex rounded-lg border border-purple-300 bg-white p-0.5 text-[10px] font-bold">
+                    <button
+                      onClick={() => setActiveCurveMode('PRODUCTION')}
+                      className={`px-2 py-1 rounded transition-all ${
+                        activeCurveMode === 'PRODUCTION'
+                          ? 'bg-purple-600 text-white shadow-xs'
+                          : 'text-purple-700 hover:bg-purple-50'
+                      }`}
+                    >
+                      Production Curve
+                    </button>
+                    <button
+                      onClick={() => setActiveCurveMode('SHADOW')}
+                      className={`px-2 py-1 rounded transition-all ${
+                        activeCurveMode === 'SHADOW'
+                          ? 'bg-purple-600 text-white shadow-xs'
+                          : 'text-purple-700 hover:bg-purple-50'
+                      }`}
+                    >
+                      Shadow Candidate Curve
+                    </button>
+                  </div>
+                )}
+
+                {hasPerturbations && (
+                  <button
+                    onClick={resetPerturbations}
+                    className="flex items-center gap-1 text-[11px] font-bold text-purple-700 hover:text-purple-900 px-2 py-1 rounded bg-purple-100"
+                  >
+                    <RotateCcw className="h-3 w-3" /> Reset
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Dynamic Monte Carlo Distribution Curve */}
             <DistributionChart
-              distribution={sim.distributionScores}
+              distribution={activeSim.distributionScores}
               marketSpread={matchup.market.spread}
-              simulatedSpread={sim.simulatedSpread}
-              homeWinPct={sim.homeWinPct}
+              simulatedSpread={activeSim.simulatedSpread}
+              homeWinPct={activeSim.homeWinPct}
               homeName={matchup.homeTeam.name}
               awayName={matchup.awayTeam.name}
+              isDeterministic={determinism.isDeterministic}
             />
 
             <div className="flex flex-wrap gap-2 text-xs">

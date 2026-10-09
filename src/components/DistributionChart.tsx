@@ -7,6 +7,7 @@ interface DistributionChartProps {
   homeWinPct: number;
   homeName: string;
   awayName: string;
+  isDeterministic?: boolean;
 }
 
 export const DistributionChart: React.FC<DistributionChartProps> = ({
@@ -16,6 +17,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
   homeWinPct,
   homeName,
   awayName,
+  isDeterministic = true,
 }) => {
   const [zoomLevel, setZoomLevel] = React.useState<number>(1); // 1x, 1.5x, 2.5x
   if (!distribution || distribution.length === 0) return null;
@@ -77,6 +79,11 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
           <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
             Probability Distribution Curve (10,000 Runs)
           </span>
+          {isDeterministic && (
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+              ⚡ Deterministic PRNG
+            </span>
+          )}
           {/* Interactive Zoom Controls */}
           <div className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-[10px] font-mono">
             <button

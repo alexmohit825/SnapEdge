@@ -109,4 +109,70 @@ export interface SimulationResult {
   projectedScoreHome: number;
   projectedScoreAway: number;
   distributionScores: { margin: number; count: number }[];
+  seedUsed?: number;
+  isDeterministic?: boolean;
 }
+
+// ----------------------------------------------------
+// Determinism Verification Types
+// ----------------------------------------------------
+export interface DeterminismCheckResult {
+  isDeterministic: boolean;
+  seed: number;
+  iterations: number;
+  runCount: number;
+  spreadVariance: number;
+  winPctVariance: number;
+  hashSignature: string;
+}
+
+// ----------------------------------------------------
+// Shadow Mode Candidate Types (Recursive Model Optimization)
+// ----------------------------------------------------
+export type ExperimentValidity = 'VALID_RECOMMENDED' | 'CAUTION_TEST_FIRST' | 'REJECT_SPECULATIVE';
+
+export interface ShadowExperiment {
+  id: string;
+  name: string;
+  category: 'TRENCH' | 'EDSR' | 'WEATHER' | 'KEY_NUMBERS' | 'TURNOVER_LUCK' | 'HOME_FIELD';
+  description: string;
+  scientificBasis: string;
+  formulaDescription: string;
+  validity: ExperimentValidity;
+  validityRationale: string;
+  enabledInShadow: boolean;
+  impactEstimate: string;
+}
+
+export interface ShadowConfig {
+  enabled: boolean;
+  activeExperiments: Record<string, boolean>;
+}
+
+export interface ShadowComparison {
+  production: SimulationResult;
+  shadow: SimulationResult;
+  spreadDelta: number; // shadow - production
+  winPctDelta: number; // shadow - production
+  activeExperimentsCount: number;
+}
+
+// ----------------------------------------------------
+// Comprehensive Sanity Guardrail Types
+// ----------------------------------------------------
+export interface SanityViolation {
+  field: string;
+  rule: string;
+  receivedValue: any;
+  actionTaken: 'CLAMPED' | 'SANITIZED' | 'FALLBACK';
+  sanitizedValue: any;
+  severity: 'WARNING' | 'CRITICAL';
+}
+
+export interface SanityAuditResult {
+  isValid: boolean;
+  violationsCount: number;
+  violations: SanityViolation[];
+  matchupId: string;
+}
+
