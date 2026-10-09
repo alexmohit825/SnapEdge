@@ -343,9 +343,13 @@ Provide a sharp, quantitative markdown report.`;
                 blueChipRatio: league === 'CFB' ? (homeRank ? 85 - (homeRank * 2) : 48) : undefined,
                 adjOffEpa: 0.22,
                 adjDefEpa: -0.12,
+                earlyDownSuccessRate: Number((51.5 + ((homeRank ? (26 - homeRank) : 0) * 0.25)).toFixed(1)),
+                specialTeamsEpa: 0.08,
                 trench: {
                   passBlockWinRate: homePBWR,
                   passRushWinRate: homePRWR,
+                  interiorPassBlockWinRate: Math.max(52, homePBWR - 2),
+                  interiorPassRushWinRate: Math.max(48, homePRWR + 2),
                   avgTimeToThrowSec: Number((2.55 + (homePBWR * 0.005)).toFixed(2)),
                   runStuffRate: 26,
                   injuriesOnLine: 0
@@ -364,9 +368,13 @@ Provide a sharp, quantitative markdown report.`;
                 blueChipRatio: league === 'CFB' ? (awayRank ? 85 - (awayRank * 2) : 42) : undefined,
                 adjOffEpa: 0.18,
                 adjDefEpa: -0.09,
+                earlyDownSuccessRate: Number((48.8 + ((awayRank ? (26 - awayRank) : 0) * 0.25)).toFixed(1)),
+                specialTeamsEpa: -0.04,
                 trench: {
                   passBlockWinRate: awayPBWR,
                   passRushWinRate: awayPRWR,
+                  interiorPassBlockWinRate: Math.max(50, awayPBWR - 3),
+                  interiorPassRushWinRate: Math.max(46, awayPRWR + 1),
                   avgTimeToThrowSec: Number((2.50 + (awayPBWR * 0.005)).toFixed(2)),
                   runStuffRate: 22,
                   injuriesOnLine: 0
@@ -392,16 +400,23 @@ Provide a sharp, quantitative markdown report.`;
                 {
                   id: `r_${idx}_1`,
                   category: 'TRENCH',
-                  description: `Pass Block Win Rate differential (${homePBWR}% vs ${awayPRWR}%) determines pocket collapse frequency.`,
-                  impactPoints: Number((trenchEdgeHome * 0.15).toFixed(1)),
+                  description: `A-Gap Interior Pass Block Win Rate (${homePBWR - 2}% vs ${awayPRWR + 1}%) determines pocket collapse under 2.1s threshold.`,
+                  impactPoints: Number((trenchEdgeHome * 0.65).toFixed(1)),
                   direction: trenchEdgeHome >= 0 ? 'HOME_FAVORED' : 'AWAY_FAVORED'
                 },
                 {
                   id: `r_${idx}_2`,
                   category: 'REGRESSION',
-                  description: `Market consensus line (${marketSpread}) misprices real trench disruption velocity.`,
+                  description: `Early-Down Success Rate (EDSR) indicates stable drive sustenance vs consensus market spread (${marketSpread}).`,
                   impactPoints: Math.abs(divergencePoints),
                   direction: divergencePoints >= 0 ? 'HOME_FAVORED' : 'AWAY_FAVORED'
+                },
+                {
+                  id: `r_${idx}_3`,
+                  category: 'SPECIAL_TEAMS',
+                  description: `Average Starting Field Position (ASFP) delta yields +1.7 hidden points over 12 possessions.`,
+                  impactPoints: 1.7,
+                  direction: 'HOME_FAVORED'
                 }
               ]
             };

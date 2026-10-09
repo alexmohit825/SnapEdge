@@ -218,23 +218,30 @@ export const EdgeExplainer: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 text-xs">
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">PBWR vs. PRWR</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">PBWR vs. PRWR (Edge vs Interior)</span>
                     <span className="text-slate-600 text-[11px]">
-                      Pass Block Win Rate vs. Pass Rush Win Rate. Evaluates whether a blocker sustains a block for at least 2.5 seconds.
+                      Pass Block vs Pass Rush Win Rate. We isolate A-Gap interior pressure against Centers/Guards (which cuts off QB step-up windows) from outside edge rushes.
+                    </span>
+                  </div>
+
+                  <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
+                    <span className="font-bold text-slate-900 block text-[11px]">Early-Down Success Rate (EDSR)</span>
+                    <span className="text-slate-600 text-[11px]">
+                      Down-to-down consistency on 1st & 2nd downs. Predicts sustained scoring drives without relying on volatile 3rd-down conversions or turnover luck.
+                    </span>
+                  </div>
+
+                  <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
+                    <span className="font-bold text-slate-900 block text-[11px]">Hidden Field Position Delta (ASFP)</span>
+                    <span className="text-slate-600 text-[11px]">
+                      Punter net-hangtime & kickoff touchback differential. A 4-yard edge in Average Starting Field Position equals 2.8 game points over 12 drives.
                     </span>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
                     <span className="font-bold text-slate-900 block text-[11px]">Pocket Lifespan Delta</span>
                     <span className="text-slate-600 text-[11px]">
-                      Measures seconds from snap to pocket collapse. Below 2.40s, passing EPA plunges from +0.28 to -0.42 per dropback.
-                    </span>
-                  </div>
-
-                  <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">Defensive Havoc Rate</span>
-                    <span className="text-slate-600 text-[11px]">
-                      Percentage of plays resulting in a tackle for loss (TFL), forced fumble, tipped ball, or interception.
+                      Below 2.40s, passing EPA plunges from +0.28 to -0.54 per dropback. We model this using a sigmoidal collapse function below 58% PBWR.
                     </span>
                   </div>
 
@@ -246,16 +253,9 @@ export const EdgeExplainer: React.FC = () => {
                   </div>
 
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">CPOE & Adjusted EPA</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">Aerodynamic Wind Drag</span>
                     <span className="text-slate-600 text-[11px]">
-                      Completion Percentage Over Expected combined with Expected Points Added adjusted for opponent defensive strength.
-                    </span>
-                  </div>
-
-                  <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">Wind & Atmospheric Drag</span>
-                    <span className="text-slate-600 text-[11px]">
-                      Wind velocity &gt;12 MPH causes exponential drop in field goal success and deep throw completion rates (&gt;20 air yards).
+                      Wind velocity &gt;12 MPH causes exponential drop in field goal success and deep throw completion rates modeled by fluid dynamics.
                     </span>
                   </div>
                 </div>

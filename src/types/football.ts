@@ -10,8 +10,10 @@ export interface PlayerStatus {
 }
 
 export interface TrenchUnit {
-  passBlockWinRate: number; // e.g. 68%
-  passRushWinRate: number;  // e.g. 52%
+  passBlockWinRate: number; // Overall PBWR e.g. 68%
+  passRushWinRate: number;  // Overall PRWR e.g. 52%
+  interiorPassBlockWinRate?: number; // C/OG A-Gap PBWR e.g. 64%
+  interiorPassRushWinRate?: number;  // DT/NT Interior Pressure e.g. 58%
   avgTimeToThrowSec: number; // e.g. 2.65
   runStuffRate: number;      // e.g. 21%
   injuriesOnLine: number;
@@ -30,13 +32,16 @@ export interface TeamProfile {
   returningProductionPct?: number; // 0 - 100 (CFB specific)
   adjOffEpa: number; // Opponent-adjusted EPA/play
   adjDefEpa: number;
+  earlyDownSuccessRate?: number; // EDSR (1st & 2nd down success rate % e.g. 52.4)
+  turnoverLuckDelta?: number; // Stochastic fumble/int bounce regression points
+  specialTeamsEpa?: number; // Hidden starting field position EPA
   trench: TrenchUnit;
   keyPersonnel: PlayerStatus[];
 }
 
 export interface EdgeReceiptFactor {
   id: string;
-  category: 'TRENCH' | 'PERSONNEL' | 'WEATHER' | 'REST' | 'RECRUITING' | 'REGRESSION';
+  category: 'TRENCH' | 'PERSONNEL' | 'WEATHER' | 'REST' | 'RECRUITING' | 'REGRESSION' | 'SPECIAL_TEAMS' | 'TURNOVER_LUCK';
   description: string;
   impactPoints: number; // + or - relative to home team
   direction: 'HOME_FAVORED' | 'AWAY_FAVORED';

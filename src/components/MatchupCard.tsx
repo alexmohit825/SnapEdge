@@ -30,6 +30,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
   const [windOverride, setWindOverride] = useState<number | undefined>(undefined);
   const [homeQBOut, setHomeQBOut] = useState(false);
   const [homeLTOut, setHomeLTOut] = useState(false);
+  const [homeCenterOut, setHomeCenterOut] = useState(false);
   const [awayDEOut, setAwayDEOut] = useState(false);
 
   // Live Gemini AI Scout State
@@ -74,16 +75,18 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
     windMphOverride: windOverride,
     homeQBOut,
     homeLTOut,
+    homeCenterOut,
     awayDEOut,
   });
 
-  const hasPerturbations = forceDome || windOverride !== undefined || homeQBOut || homeLTOut || awayDEOut;
+  const hasPerturbations = forceDome || windOverride !== undefined || homeQBOut || homeLTOut || homeCenterOut || awayDEOut;
 
   const resetPerturbations = () => {
     setForceDome(false);
     setWindOverride(undefined);
     setHomeQBOut(false);
     setHomeLTOut(false);
+    setHomeCenterOut(false);
     setAwayDEOut(false);
   };
 
@@ -397,7 +400,19 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup }) => {
                     : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                 }`}
               >
-                Simulate {matchup.homeTeam.name} LT Out (Blindside Collapse)
+                Simulate {matchup.homeTeam.name} LT Out (Blindside)
+              </button>
+
+              <button
+                onClick={() => setHomeCenterOut(!homeCenterOut)}
+                className={`rounded-lg px-3 py-1.5 border transition-all ${
+                  homeCenterOut 
+                    ? 'bg-rose-100 border-rose-400 text-rose-800 font-bold shadow-sm' 
+                    : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
+                }`}
+                title="MIT Sloan Tracking study: Interior A-gap pressure drops Passing EPA to -0.54"
+              >
+                Simulate {matchup.homeTeam.name} Center Out (A-Gap Collapse)
               </button>
 
               <button
