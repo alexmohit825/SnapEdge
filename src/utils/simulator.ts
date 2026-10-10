@@ -68,84 +68,55 @@ export function runMonteCarloSimulation(
 
   const { homeTeam, awayTeam, weather, market } = matchup;
 
-  // 1. Calculate Base Efficiency Vector (Adjusted EPA)
-  let baseHomeStrength = (homeTeam.adjOffEpa - awayTeam.adjDefEpa) * 28 + 2.5; // +2.5 baseline home field
-  let baseAwayStrength = (awayTeam.adjOffEpa - homeTeam.adjDefEpa) * 28;
+  // 1. Calculate Calibrated Fair Spread (Home Margin = -activeSpread)
+  let activeSpread = matchup.model?.fairSpread ?? matchup.market.spread;
 
-  // 2. Scientific Variable: Early-Down Success Rate (EDSR) Drive Sustenance
-  const homeEdsr = homeTeam.earlyDownSuccessRate ?? 50.0;
-  const awayEdsr = awayTeam.earlyDownSuccessRate ?? 50.0;
-  
-  // Shadow Mode Experiment: Boost EDSR multiplier from 0.22 to 0.35 if candidate enabled
-  const edsrMultiplier = (isShadowMode && activeExps['EXP_EDSR_LEVERAGE_BOOST']) ? 0.35 : 0.22;
-  baseHomeStrength += (homeEdsr - 50.0) * edsrMultiplier;
-  baseAwayStrength += (awayEdsr - 50.0) * edsrMultiplier;
-
-  // 3. Scientific Variable: Special Teams Hidden Field Position Delta (FEI / ASFP)
-  const homeStEpa = homeTeam.specialTeamsEpa ?? 0.0;
-  const awayStEpa = awayTeam.specialTeamsEpa ?? 0.0;
-  baseHomeStrength += homeStEpa * 14.0;
-  baseAwayStrength += awayStEpa * 14.0;
-
-  // 4. Adjust for College Blue-Chip Ratio disparity if CFB
-  if (matchup.league === 'CFB' && homeTeam.blueChipRatio !== undefined && awayTeam.blueChipRatio !== undefined) {
-    const talentDelta = (homeTeam.blueChipRatio - awayTeam.blueChipRatio) / 100;
-    baseHomeStrength += talentDelta * 5.5; // Talent pedigree override
-  }
-
-  // 5. Scientific Variable: Micro-Level Trench Geometry (Interior A-Gap vs Edge)
-  const interiorMultiplier = (isShadowMode && activeExps['EXP_A_GAP_INTEL_AMP']) ? 5.4 : 4.5;
-  const useSigmoidalTrench = Boolean(isShadowMode && activeExps['EXP_SIGMOIDAL_TRENCH']);
-
-  const calculateTrenchImpact = (pbwr: number, oppPrwr: number, interiorPbwr?: number, oppInteriorPrwr?: number) => {
-    const edgeDiff = pbwr - oppPrwr;
-    let impact = (edgeDiff / 100) * 3.0;
-
-    // Interior C/OG vs DT A-Gap pressure multiplier
-    const intPbwr = interiorPbwr ?? (pbwr - 2);
-    const intPrwr = oppInteriorPrwr ?? (oppPrwr - 1);
-    const interiorDiff = intPbwr - intPrwr;
-    impact += (interiorDiff / 100) * interiorMultiplier;
-
-    // Non-linear pocket breakdown penalty when either edge or interior collapses below 58%
-    const minPbwr = Math.min(pbwr, intPbwr);
-    if (minPbwr < 58) {
-      if (useSigmoidalTrench) {
-        // Shadow Mode candidate: Sigmoidal / logistic pocket lifespan collapse
-        const collapseSeverity = Math.pow((58 - minPbwr) / 10, 1.4) * 2.85;
-        impact -= collapseSeverity;
-      } else {
-        // Production baseline
-        const collapseSeverity = Math.pow((58 - minPbwr) / 10, 1.4) * 2.4;
-        impact -= collapseSeverity;
-      }
+  // In Shadow Mode, evaluate candidate adjustments to the spread
+  if (isShadowMode) {
+    // Sigmoidal trench adjustment in shadow
+    if (activeExps['EXP_SIGMOIDAL_TRENCH']) {
+      const homeMinPbwr = Math.min(homeTeam.trench.passBlockWinRate, homeTeam.trench.interiorPassBlockWinRate ?? (homeTeam.trench.passBlockWinRate - 2));
+      const awayMinPbwr = Math.min(awayTeam.trench.passBlockWinRate, awayTeam.trench.interiorPassBlockWinRate ?? (awayTeam.trench.passBlockWinRate - 2));
+      if (homeMinPbwr < 58) activeSpread += Math.pow((58 - homeMinPbwr) / 10, 1.4) * 0.45;
+      if (awayMinPbwr < 58) activeSpread -= Math.pow((58 - awayMinPbwr) / 10, 1.4) * 0.45;
     }
-    return impact;
-  };
-
-  baseHomeStrength += calculateTrenchImpact(
-    homeTeam.trench.passBlockWinRate,
-    awayTeam.trench.passRushWinRate,
-    homeTeam.trench.interiorPassBlockWinRate,
-    awayTeam.trench.interiorPassRushWinRate
-  );
-  baseAwayStrength += calculateTrenchImpact(
-    awayTeam.trench.passBlockWinRate,
-    homeTeam.trench.passRushWinRate,
-    awayTeam.trench.interiorPassBlockWinRate,
-    awayTeam.trench.interiorPassRushWinRate
-  );
-
-  // 6. Scientific Variable: Turnover Luck Regression Filter
-  const turnoverMultiplier = (isShadowMode && activeExps['EXP_TURNOVER_LUCK_ATTENUATION']) ? 0.65 : 0.45;
-  if (homeTeam.turnoverLuckDelta) {
-    baseHomeStrength -= homeTeam.turnoverLuckDelta * turnoverMultiplier;
-  }
-  if (awayTeam.turnoverLuckDelta) {
-    baseAwayStrength -= awayTeam.turnoverLuckDelta * turnoverMultiplier;
+    // EDSR leverage boost in shadow
+    if (activeExps['EXP_EDSR_LEVERAGE_BOOST']) {
+      const edsrDelta = ((homeTeam.earlyDownSuccessRate ?? 50.0) - (awayTeam.earlyDownSuccessRate ?? 50.0)) * 0.13;
+      activeSpread -= edsrDelta;
+    }
+    // A-gap interior leverage in shadow
+    if (activeExps['EXP_A_GAP_INTEL_AMP']) {
+      const homeIntDiff = (homeTeam.trench.interiorPassBlockWinRate ?? 62) - (awayTeam.trench.interiorPassRushWinRate ?? 50);
+      const awayIntDiff = (awayTeam.trench.interiorPassBlockWinRate ?? 60) - (homeTeam.trench.interiorPassRushWinRate ?? 52);
+      activeSpread -= ((homeIntDiff - awayIntDiff) / 100) * 0.9;
+    }
+    // Turnover luck regression in shadow
+    if (activeExps['EXP_TURNOVER_LUCK_ATTENUATION']) {
+      const luckDelta = ((homeTeam.turnoverLuckDelta ?? 0) - (awayTeam.turnoverLuckDelta ?? 0)) * 0.20;
+      activeSpread += luckDelta; // Regress unearned luck
+    }
   }
 
-  // 7. Aerodynamic Quadratic Atmospheric Drag ("What-If" Studio & Radar)
+  // Apply What-If Perturbations to Spread
+  if (perturbations.homeQBOut) {
+    activeSpread += 6.8; // Backup QB value degradation
+  }
+  if (perturbations.homeLTOut) {
+    activeSpread += 3.4; // Blindside tackle collapse non-linear penalty
+  }
+  if (perturbations.homeCenterOut) {
+    activeSpread += 4.2; // Fatal interior A-gap pocket collapse (MIT Sloan)
+  }
+  if (perturbations.awayDEOut) {
+    activeSpread -= 2.2; // Edge rush Havoc reduction
+  }
+
+  // 2. Realistic Game Total Calibration (Anchored to Market & League Environment)
+  const baselineTotal = (market && market.total && market.total >= 20)
+    ? market.total
+    : (matchup.league === 'CFB' ? 53.5 : 44.5);
+
   const activeWind = perturbations.forceDome 
     ? 0 
     : (perturbations.windMphOverride !== undefined ? perturbations.windMphOverride : weather.windMph);
@@ -156,23 +127,17 @@ export function runMonteCarloSimulation(
         ? Math.pow(activeWind - 12, 1.6) * 0.28
         : Math.pow(activeWind - 12, 1.5) * 0.22)
     : 0;
-  
-  if (perturbations.homeQBOut) {
-    baseHomeStrength -= 6.8; // Backup QB value degradation
-  }
-  if (perturbations.homeLTOut) {
-    baseHomeStrength -= 3.4; // Blindside tackle collapse non-linear penalty
-  }
-  if (perturbations.homeCenterOut) {
-    baseHomeStrength -= 4.2; // Fatal interior A-gap pocket collapse (MIT Sloan)
-  }
-  if (perturbations.awayDEOut) {
-    baseAwayStrength -= 2.2; // Edge rush Havoc reduction
-  }
 
-  // Baseline expected points
-  const expectedHomeScore = Math.max(9, 26 + baseHomeStrength - windPenalty);
-  const expectedAwayScore = Math.max(9, 23.5 + baseAwayStrength - windPenalty);
+  let totalInjuryDrag = 0;
+  if (perturbations.homeQBOut) totalInjuryDrag += 3.4;
+  if (perturbations.homeCenterOut) totalInjuryDrag += 1.8;
+
+  const weatherTotalDrag = windPenalty * 1.35;
+  const projectedGameTotal = Math.max(24.0, baselineTotal - weatherTotalDrag - totalInjuryDrag);
+
+  // 3. Calibrated Implied Team Means (Home Margin = -activeSpread)
+  const expectedHomeScore = Math.max(3.0, (projectedGameTotal - activeSpread) / 2);
+  const expectedAwayScore = Math.max(3.0, (projectedGameTotal + activeSpread) / 2);
 
   const scoreStdDev = matchup.league === 'CFB' ? 9.8 : 11.2;
 
