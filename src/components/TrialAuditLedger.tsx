@@ -8,7 +8,10 @@ import {
   XCircle, 
   Download, 
   ShieldCheck, 
-  Sparkles
+  Sparkles,
+  HelpCircle,
+  Target,
+  Scale
 } from 'lucide-react';
 import type { Matchup, TrialEntry } from '../types/football';
 import { 
@@ -25,6 +28,7 @@ interface TrialAuditLedgerProps {
 
 export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [selectedCohort, setSelectedCohort] = useState<'ALL' | 'HIGH_EDGE' | 'NEUTRAL'>('ALL');
   const [entries, setEntries] = useState<TrialEntry[]>(() => {
     const saved = loadSavedTrialEntries();
@@ -145,6 +149,20 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
 
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={() => setShowGuide(!showGuide)}
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition-colors shadow-2xs ${
+                showGuide 
+                  ? 'border-indigo-300 bg-indigo-100/90 text-indigo-900' 
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+              }`}
+              title="How to run trial & ATS interpretation guide"
+              aria-expanded={showGuide}
+            >
+              <HelpCircle className="h-3.5 w-3.5 text-indigo-600" />
+              <span>{showGuide ? 'Hide Trial Guide' : 'Trial Guide & What is ATS?'}</span>
+            </button>
+
+            <button
               onClick={handleFreezeSlate}
               className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 hover:bg-blue-100 transition-colors shadow-2xs"
               title="Lock Current Slate for Scientific Pre-Registration"
@@ -172,6 +190,102 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
             </button>
           </div>
         </div>
+
+        {/* Collapsible How-To & What is ATS? Guide Box */}
+        {showGuide && (
+          <div className="mt-4 p-4 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/50 text-slate-800 text-xs space-y-4 shadow-sm animate-fadeIn">
+            <div className="flex items-start justify-between gap-2 border-b border-indigo-100 pb-3">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-indigo-600 shrink-0" />
+                <h4 className="text-sm font-bold text-slate-900 tracking-tight">
+                  Prospective Clinical Trial Protocol &amp; ATS Benchmark Guide
+                </h4>
+              </div>
+              <button
+                onClick={() => setShowGuide(false)}
+                className="text-[11px] font-bold text-slate-400 hover:text-slate-600 px-2 py-0.5 rounded-md hover:bg-slate-100"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Left Column: What is ATS? */}
+              <div className="space-y-2 bg-white/80 p-3.5 rounded-lg border border-indigo-100/80 shadow-2xs">
+                <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs">
+                  <Scale className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>1. What is ATS (&quot;Against The Spread&quot;)?</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  In sports betting, Vegas sportsbooks set a <strong className="text-slate-900">point spread</strong> to handicap the favorite so betting on either side is theoretically a 50/50 proposition.
+                </p>
+                <div className="bg-slate-50 p-2.5 rounded-md border border-slate-200/80 text-[11px] text-slate-700 space-y-1">
+                  <div>
+                    <span className="font-semibold text-slate-900">Example:</span> Kansas City is favored at <span className="font-mono font-bold text-indigo-600">-6.5</span> over Denver (<span className="font-mono font-bold text-slate-700">+6.5</span>).
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10.5px] text-slate-600">
+                    <li>If KC wins <span className="font-mono font-semibold">24–20</span> (by 4 pts), KC won straight-up, but <strong className="text-emerald-700">Denver covered ATS (+6.5)</strong>. A Denver ATS bet wins!</li>
+                    <li>If KC wins <span className="font-mono font-semibold">31–20</span> (by 11 pts), <strong className="text-blue-700">KC covered ATS (-6.5)</strong>. A KC ATS bet wins.</li>
+                  </ul>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  <strong className="text-slate-900">ATS Win Rate</strong> measures whether our mathematical simulation beats the sportsbook&apos;s handicap, rather than just picking the favorite to win straight up.
+                </p>
+              </div>
+
+              {/* Right Column: Interpreting ATS Win Rate */}
+              <div className="space-y-2 bg-white/80 p-3.5 rounded-lg border border-indigo-100/80 shadow-2xs">
+                <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs">
+                  <Target className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>2. How to Interpret ATS Win Rates</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  Because casinos charge a standard <strong className="text-slate-900">4.76% fee (&quot;the vig&quot; or juice</strong>, typically -110 odds), picking 50% ATS loses money over time.
+                </p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between p-1.5 rounded-md bg-rose-50 border border-rose-200 text-[10.5px]">
+                    <span className="font-mono font-bold text-rose-800">&lt; 50.0%</span>
+                    <span className="text-rose-700 font-medium">Random Coin Flip (Unprofitable)</span>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-md bg-amber-50 border border-amber-200 text-[10.5px]">
+                    <span className="font-mono font-bold text-amber-800">52.38%</span>
+                    <span className="text-amber-800 font-medium">Casino Breakeven Wall (0% Net Profit)</span>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-md bg-emerald-50 border border-emerald-200 text-[10.5px]">
+                    <span className="font-mono font-bold text-emerald-800">55.0% – 57.0%</span>
+                    <span className="text-emerald-800 font-bold">Statistically Significant Profitable Edge</span>
+                  </div>
+                  <div className="flex items-center justify-between p-1.5 rounded-md bg-purple-50 border border-purple-200 text-[10.5px]">
+                    <span className="font-mono font-bold text-purple-800">&gt; 58.0%</span>
+                    <span className="text-purple-800 font-bold">World-Class Professional Syndicate Grade</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section: 3-Step Prospective Trial Protocol */}
+            <div className="bg-white/80 p-3 rounded-lg border border-indigo-100/80 shadow-2xs">
+              <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                <span>3. Prospective Clinical Trial Protocol (Weeks 7–10)</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] text-slate-600">
+                <div className="p-2 rounded-md bg-slate-50 border border-slate-200/70">
+                  <span className="font-bold text-slate-900 block mb-0.5">Step A: Freeze Before Kickoff</span>
+                  <span>Click <strong className="text-blue-700">&quot;Lock Pre-Registration&quot;</strong> on Thursday or Friday. SnapEdge spreads and sides are sealed with cryptographic SHA-256 hashes. No retro-fitting allowed.</span>
+                </div>
+                <div className="p-2 rounded-md bg-slate-50 border border-slate-200/70">
+                  <span className="font-bold text-slate-900 block mb-0.5">Step B: Cohort Stratification</span>
+                  <span>Games with <strong className="text-emerald-700">divergence ≥ 1.5 pts</strong> enter <strong className="text-emerald-800">Cohort A (High-Edge)</strong>. Low-divergence games enter Cohort B (Market-Neutral).</span>
+                </div>
+                <div className="p-2 rounded-md bg-slate-50 border border-slate-200/70">
+                  <span className="font-bold text-slate-900 block mb-0.5">Step C: Unbiased Verification</span>
+                  <span>Final scores update live. The scorecard tallies ATS covers, Straight-Up winners, and Total MAE error. Export to CSV for external audit at any time.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Cumulative Scorecard KPIs (Always Visible) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100">
