@@ -67,6 +67,9 @@ export interface Matchup {
 
   // Game Status & Actual Scores (for completed games)
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'FINAL';
+  broadcast?: string; // e.g. 'FOX', 'CBS', 'NFL Network', 'NBC', 'ESPN'
+  gameSegment?: string; // e.g. '7:33 - 1st', '1st & 10 HOU 49'
+  dateHeader?: string; // e.g. 'Sunday, Oct 18'
   actualScore?: {
     home: number;
     away: number;

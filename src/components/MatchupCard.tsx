@@ -128,17 +128,23 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
           <span className="rounded-md bg-white border border-slate-200 px-2.5 py-0.5 text-xs font-mono font-bold text-slate-800 shadow-xs">
             {matchup.league} • WEEK {matchup.week}
           </span>
+          {matchup.broadcast && (
+            <span className="rounded bg-slate-900 text-white font-mono text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
+              {matchup.broadcast}
+            </span>
+          )}
           {matchup.status === 'FINAL' ? (
             <span className="rounded-full bg-slate-900 text-emerald-400 font-mono text-[10px] font-black px-2.5 py-0.5 uppercase tracking-wider flex items-center gap-1">
               <Trophy className="w-3 h-3 text-emerald-400" /> FINAL
             </span>
           ) : matchup.status === 'IN_PROGRESS' ? (
-            <span className="rounded-full bg-rose-600 text-white font-mono text-[10px] font-black px-2.5 py-0.5 uppercase tracking-wider animate-pulse">
-              LIVE
+            <span className="rounded-full bg-rose-600 text-white font-mono text-[10px] font-black px-2.5 py-0.5 uppercase tracking-wider flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
+              {matchup.gameSegment || 'LIVE'}
             </span>
           ) : (
-            <span className="rounded-full bg-slate-100 text-slate-600 font-mono text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider">
-              SCHEDULED
+            <span className="rounded-full bg-slate-100 text-slate-700 font-mono text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider">
+              {matchup.gameSegment || 'SCHEDULED'}
             </span>
           )}
           <span className="text-xs text-slate-500 font-medium">
@@ -291,6 +297,20 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
                   title={`${matchup.homeTeam.name}: ${sim.homeWinPct}%`}
                 />
               </div>
+            </div>
+
+            {/* Sportsbook Odds Capsule (Matching Premier NFL App Style) */}
+            <div className="flex flex-wrap items-center justify-between rounded-xl bg-slate-100/90 border border-slate-200 px-3 py-1.5 text-xs font-mono font-semibold text-slate-700 gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span>Spread: <strong className="text-slate-900">{matchup.market.spread > 0 ? `+${matchup.market.spread}` : matchup.market.spread}</strong></span>
+                <span>•</span>
+                <span>Total: <strong className="text-slate-900">{matchup.market.total}</strong></span>
+                <span>•</span>
+                <span>Moneyline: <strong className="text-slate-900">{matchup.market.moneylineAway > 0 ? `+${matchup.market.moneylineAway}` : matchup.market.moneylineAway} / {matchup.market.moneylineHome > 0 ? `+${matchup.market.moneylineHome}` : matchup.market.moneylineHome}</strong></span>
+              </div>
+              <span className="text-[10px] text-slate-500 font-sans uppercase font-bold tracking-wider">
+                Market Line
+              </span>
             </div>
 
             {/* Completed Game Verification Status Pill */}

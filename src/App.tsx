@@ -13,12 +13,13 @@ import {
   GraduationCap, 
   Trophy, 
   RefreshCw,
-  Search
+  Search,
+  Calendar
 } from 'lucide-react';
 
 export function App() {
-  const [selectedLeague, setSelectedLeague] = useState<League>('CFB');
-  const [selectedWeek, setSelectedWeek] = useState<number>(6); // CFB Week 6, NFL Week 4
+  const [selectedLeague, setSelectedLeague] = useState<League>('NFL');
+  const [selectedWeek, setSelectedWeek] = useState<number>(6); // Active Week 6 (Oct 14-20)
   const [hasExplicitWeek, setHasExplicitWeek] = useState(false);
   const [filterType, setFilterType] = useState<'ALL' | 'HIGH_EDGE' | 'TOP_25' | 'WIND'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,7 +33,7 @@ export function App() {
   const handleLeagueChange = (league: League) => {
     setSelectedLeague(league);
     setHasExplicitWeek(false);
-    setSelectedWeek(league === 'CFB' ? 6 : 4);
+    setSelectedWeek(6);
   };
 
   // Automatically fetch live weekly schedule from Cloudflare Ingestion API
@@ -92,6 +93,24 @@ export function App() {
 
     return true;
   });
+
+  // Group matchups by Date Header (e.g. "Sunday, Oct 18")
+  const getGameDateKey = (m: Matchup): string => {
+    if (m.dateHeader) return m.dateHeader;
+    try {
+      const d = new Date(m.kickoffTime);
+      return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    } catch {
+      return `Week ${m.week} Matchups`;
+    }
+  };
+
+  const groupedMatchups: { [date: string]: Matchup[] } = {};
+  for (const m of filteredMatchups) {
+    const key = getGameDateKey(m);
+    if (!groupedMatchups[key]) groupedMatchups[key] = [];
+    groupedMatchups[key].push(m);
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 antialiased selection:bg-orange-500 selection:text-white pb-20">
@@ -155,18 +174,6 @@ export function App() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div className="flex rounded-xl border border-slate-200 bg-slate-100 p-1 shadow-inner">
             <button
-              onClick={() => handleLeagueChange('CFB')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
-                selectedLeague === 'CFB'
-                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-900'
-              }`}
-            >
-              <GraduationCap className="h-4 w-4 text-orange-500" />
-              <span>Saturday College (CFB)</span>
-            </button>
-
-            <button
               onClick={() => handleLeagueChange('NFL')}
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                 selectedLeague === 'NFL'
@@ -176,6 +183,18 @@ export function App() {
             >
               <Trophy className="h-4 w-4 text-orange-500" />
               <span>Sunday Pro (NFL)</span>
+            </button>
+
+            <button
+              onClick={() => handleLeagueChange('CFB')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
+                selectedLeague === 'CFB'
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <GraduationCap className="h-4 w-4 text-orange-500" />
+              <span>Saturday College (CFB)</span>
             </button>
           </div>
 
@@ -230,19 +249,47 @@ export function App() {
           </div>
         </div>
 
-        {/* Dynamic Week Navigation Bar */}
-        <div className="mb-5 flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-thin">
-          <span className="text-[11px] font-mono font-bold uppercase text-slate-500 mr-2 flex-shrink-0">
-            Select Week:
+        {/* Premier Week Navigation Bar with Exact Date Ranges */}
+        <div className="mb-5 flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
+          <span className="text-[11px] font-mono font-bold uppercase text-slate-500 mr-1 flex-shrink-0">
+            Schedule Week:
           </span>
-          {Array.from({ length: selectedLeague === 'CFB' ? 15 : 18 }, (_, i) => i + 1).map((w) => (
+          {[5, 6, 7].map((w) => {
+            const dateRange = w === 5 ? 'OCT 7-13' : w === 6 ? 'OCT 14-20' : 'OCT 21-27';
+            const isCurrent = selectedWeek === w;
+            return (
+              <button
+                key={w}
+                onClick={() => {
+                  setHasExplicitWeek(true);
+                  setSelectedWeek(w);
+                }}
+                className={`px-3 py-1.5 text-xs font-mono font-bold rounded-xl border transition-all flex items-center gap-2 flex-shrink-0 shadow-xs ${
+                  isCurrent
+                    ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-slate-900/10'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+                }`}
+              >
+                <span>WEEK {w}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-normal ${
+                  isCurrent ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {dateRange}
+                </span>
+                {w === 6 && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" title="Active Game Day" />
+                )}
+              </button>
+            );
+          })}
+          {Array.from({ length: (selectedLeague === 'CFB' ? 15 : 18) - 7 }, (_, i) => i + 8).map((w) => (
             <button
               key={w}
               onClick={() => {
                 setHasExplicitWeek(true);
                 setSelectedWeek(w);
               }}
-              className={`px-3 py-1 text-xs font-mono font-bold rounded-lg border transition-all flex-shrink-0 shadow-xs ${
+              className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg border transition-all flex-shrink-0 shadow-xs ${
                 selectedWeek === w
                   ? 'bg-slate-900 text-white border-slate-900'
                   : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
@@ -260,21 +307,38 @@ export function App() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Filter ${selectedLeague} teams (e.g., Ohio State, Texas, Chiefs, Lions)...`}
+            placeholder={`Filter ${selectedLeague} teams (e.g., Ravens, Browns, Texans, Chiefs)...`}
             className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 shadow-xs focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition-colors"
           />
         </div>
 
-        {/* Matchup Cards Feed */}
+        {/* Matchup Cards Feed Grouped by Date */}
         {filteredMatchups.length > 0 ? (
-          <div>
-            {filteredMatchups.map((matchup) => (
-              <MatchupCard 
-                key={matchup.id} 
-                matchup={matchup} 
-                shadowConfig={shadowConfig} 
-                tuningConfig={tuningConfig}
-              />
+          <div className="space-y-6">
+            {Object.entries(groupedMatchups).map(([dateLabel, games]) => (
+              <div key={dateLabel}>
+                <div className="flex items-center gap-2 mb-3 mt-4 first:mt-0">
+                  <Calendar className="w-4 h-4 text-orange-500" />
+                  <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase">
+                    {dateLabel}
+                  </h3>
+                  <span className="text-xs font-mono font-semibold text-slate-400">
+                    ({games.length} {games.length === 1 ? 'Matchup' : 'Matchups'})
+                  </span>
+                  <span className="h-px bg-slate-200 flex-1 ml-2" />
+                </div>
+
+                <div className="space-y-4">
+                  {games.map((matchup) => (
+                    <MatchupCard 
+                      key={matchup.id} 
+                      matchup={matchup} 
+                      shadowConfig={shadowConfig} 
+                      tuningConfig={tuningConfig}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         ) : (
