@@ -1,4 +1,4 @@
-import type { Matchup, SimulationResult, ShadowConfig, ShadowComparison, DeterminismCheckResult } from '../types/football';
+import type { Matchup, SimulationResult, ShadowConfig, ShadowComparison, DeterminismCheckResult, EngineTuningConfig } from '../types/football';
 
 /**
  * Deterministic Pseudorandom Number Generator (Mulberry32)
@@ -40,6 +40,7 @@ export interface SimulationOptions {
   seedOverride?: number;
   isShadowMode?: boolean;
   shadowConfig?: ShadowConfig;
+  tuningConfig?: EngineTuningConfig;
 }
 
 /**
@@ -56,12 +57,19 @@ export function runMonteCarloSimulation(
   const isShadowMode = Boolean(options.isShadowMode || (options.shadowConfig && options.shadowConfig.enabled));
   const activeExps = (isShadowMode && options.shadowConfig) ? options.shadowConfig.activeExperiments : {};
 
+  const tuning = options.tuningConfig;
+  const trenchMultiplier = tuning?.trenchWeightMultiplier ?? 1.0;
+  const edsrMult = tuning?.edsrMultiplier ?? 0.22;
+  const windMult = tuning?.windPenaltyMultiplier ?? 1.0;
+  const paceMult = tuning?.scoringPaceMultiplier ?? 1.0;
+  const talentMult = tuning?.talentDisparityMultiplier ?? 1.0;
+
   // Derive stable seed for absolute determinism: same input -> same output
   const seedString = `${matchup.id}_${matchup.kickoffTime}_${matchup.homeTeam.id}_${matchup.awayTeam.id}_` +
     `${perturbations.windMphOverride ?? 'none'}_${perturbations.forceDome ? 1 : 0}_` +
     `${perturbations.homeQBOut ? 1 : 0}_${perturbations.homeLTOut ? 1 : 0}_` +
     `${perturbations.homeCenterOut ? 1 : 0}_${perturbations.awayDEOut ? 1 : 0}_` +
-    `${isShadowMode ? 'SHADOW' : 'PROD'}_${iterations}_${JSON.stringify(activeExps)}`;
+    `${isShadowMode ? 'SHADOW' : 'PROD'}_${iterations}_${JSON.stringify(activeExps)}_${tuning ? tuning.version : 'base'}`;
 
   const seed = options.seedOverride !== undefined ? options.seedOverride : hashStringToSeed(seedString);
   const prng = createMulberry32(seed);
@@ -98,6 +106,24 @@ export function runMonteCarloSimulation(
     }
   }
 
+  // Apply Recursive Engine Tuning Config if active
+  if (tuning) {
+    const homePBWR = homeTeam.trench.passBlockWinRate;
+    const awayPRWR = awayTeam.trench.passRushWinRate;
+    const awayPBWR = awayTeam.trench.passBlockWinRate;
+    const homePRWR = homeTeam.trench.passRushWinRate;
+    const trenchDiff = ((homePBWR - awayPRWR) - (awayPBWR - homePRWR)) / 100;
+    activeSpread -= trenchDiff * 2.5 * (trenchMultiplier - 1.0);
+
+    const edsrDiff = ((homeTeam.earlyDownSuccessRate ?? 50.0) - (awayTeam.earlyDownSuccessRate ?? 50.0));
+    activeSpread -= (edsrDiff * (edsrMult - 0.22));
+
+    if (matchup.league === 'CFB' && homeTeam.blueChipRatio && awayTeam.blueChipRatio) {
+      const talentDelta = ((homeTeam.blueChipRatio - awayTeam.blueChipRatio) / 100);
+      activeSpread -= talentDelta * 4.0 * (talentMult - 1.0);
+    }
+  }
+
   // Apply What-If Perturbations to Spread
   if (perturbations.homeQBOut) {
     activeSpread += 6.8; // Backup QB value degradation
@@ -124,8 +150,8 @@ export function runMonteCarloSimulation(
   // Aerodynamic drag on passing EPA & field-goal trajectories grows non-linearly above 12 MPH
   const windPenalty = activeWind > 12 
     ? (isShadowMode && activeExps['EXP_WEATHER_QUADRATIC_DRAG']
-        ? Math.pow(activeWind - 12, 1.6) * 0.28
-        : Math.pow(activeWind - 12, 1.5) * 0.22)
+        ? Math.pow(activeWind - 12, 1.6) * 0.28 * windMult
+        : Math.pow(activeWind - 12, 1.5) * 0.22 * windMult)
     : 0;
 
   let totalInjuryDrag = 0;
@@ -133,7 +159,7 @@ export function runMonteCarloSimulation(
   if (perturbations.homeCenterOut) totalInjuryDrag += 1.8;
 
   const weatherTotalDrag = windPenalty * 1.35;
-  const projectedGameTotal = Math.max(24.0, baselineTotal - weatherTotalDrag - totalInjuryDrag);
+  const projectedGameTotal = Math.max(24.0, (baselineTotal * paceMult) - weatherTotalDrag - totalInjuryDrag);
 
   // 3. Calibrated Implied Team Means (Home Margin = -activeSpread)
   const expectedHomeScore = Math.max(3.0, (projectedGameTotal - activeSpread) / 2);
@@ -258,10 +284,11 @@ export function verifyDeterminism(
 export function runComparisonSimulation(
   matchup: Matchup,
   perturbations: SimulationPerturbations = {},
-  shadowConfig?: ShadowConfig
+  shadowConfig?: ShadowConfig,
+  tuningConfig?: EngineTuningConfig
 ): ShadowComparison {
-  const production = runMonteCarloSimulation(matchup, perturbations, { isShadowMode: false });
-  const shadow = runMonteCarloSimulation(matchup, perturbations, { isShadowMode: true, shadowConfig });
+  const production = runMonteCarloSimulation(matchup, perturbations, { isShadowMode: false, tuningConfig });
+  const shadow = runMonteCarloSimulation(matchup, perturbations, { isShadowMode: true, shadowConfig, tuningConfig });
 
   const spreadDelta = Number((shadow.simulatedSpread - production.simulatedSpread).toFixed(2));
   const winPctDelta = Number((shadow.homeWinPct - production.homeWinPct).toFixed(2));

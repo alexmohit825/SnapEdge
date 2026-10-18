@@ -257,17 +257,37 @@ Provide a sharp, quantitative markdown report.`;
               : (oddsObj.details && oddsObj.details.includes('-') 
                   ? parseFloat(oddsObj.details.split('-')[1]) * -1 
                   : -3.5);
-            const marketTotal = typeof oddsObj.overUnder === 'number' ? oddsObj.overUnder : 48.5;
+            const defaultTotal = league === 'CFB' ? 52.5 : 44.5;
+            const marketTotal = typeof oddsObj.overUnder === 'number' && oddsObj.overUnder >= 20 ? oddsObj.overUnder : defaultTotal;
 
             // Ranks (e.g. #1 Texas, #3 Ohio State)
             const homeRank = homeComp.curatedRank?.current && homeComp.curatedRank.current <= 25 ? homeComp.curatedRank.current : undefined;
             const awayRank = awayComp.curatedRank?.current && awayComp.curatedRank.current <= 25 ? awayComp.curatedRank.current : undefined;
 
+            // Helper to dynamically calculate EPA & EDSR from team record and rank
+            const calcTeamMetrics = (recordStr?: string, rank?: number) => {
+              let winPct = 0.5;
+              if (recordStr) {
+                const parts = recordStr.split('-');
+                const w = parseInt(parts[0], 10) || 0;
+                const l = parseInt(parts[1], 10) || 0;
+                if (w + l > 0) winPct = w / (w + l);
+              }
+              const rankBonus = rank ? ((26 - rank) / 25) * 0.22 : 0;
+              const offEpa = Number((-0.05 + (winPct * 0.28) + rankBonus).toFixed(2));
+              const defEpa = Number((0.08 - (winPct * 0.24) - (rankBonus * 0.7)).toFixed(2));
+              const edsr = Number((44.5 + (winPct * 10.0) + (rankBonus * 10.0)).toFixed(1));
+              return { offEpa, defEpa, edsr, winPct };
+            };
+
+            const homeMetrics = calcTeamMetrics(homeComp.records?.[0]?.summary, homeRank);
+            const awayMetrics = calcTeamMetrics(awayComp.records?.[0]?.summary, awayRank);
+
             // Derive realistic Trench Win Rates & Physics Vectors
-            const baseHomePBWR = 68 + ((homeRank ? (26 - homeRank) : 0) * 0.4);
-            const baseAwayPBWR = 66 + ((awayRank ? (26 - awayRank) : 0) * 0.4);
-            const baseHomePRWR = 58 + ((homeRank ? (26 - homeRank) : 0) * 0.4);
-            const baseAwayPRWR = 56 + ((awayRank ? (26 - awayRank) : 0) * 0.4);
+            const baseHomePBWR = 64 + (homeMetrics.winPct * 12) + ((homeRank ? (26 - homeRank) : 0) * 0.35);
+            const baseAwayPBWR = 62 + (awayMetrics.winPct * 12) + ((awayRank ? (26 - awayRank) : 0) * 0.35);
+            const baseHomePRWR = 54 + (homeMetrics.winPct * 12) + ((homeRank ? (26 - homeRank) : 0) * 0.35);
+            const baseAwayPRWR = 52 + (awayMetrics.winPct * 12) + ((awayRank ? (26 - awayRank) : 0) * 0.35);
 
             const homePBWR = Math.min(84, Math.max(54, Math.round(baseHomePBWR)));
             const awayPBWR = Math.min(84, Math.max(54, Math.round(baseAwayPBWR)));
@@ -329,9 +349,9 @@ Provide a sharp, quantitative markdown report.`;
                 rank: homeRank,
                 logoColor: homeTeamObj.color ? `#${homeTeamObj.color}` : '#1E293B',
                 blueChipRatio: league === 'CFB' ? (homeRank ? 85 - (homeRank * 2) : 48) : undefined,
-                adjOffEpa: 0.22,
-                adjDefEpa: -0.12,
-                earlyDownSuccessRate: Number((51.5 + ((homeRank ? (26 - homeRank) : 0) * 0.25)).toFixed(1)),
+                adjOffEpa: homeMetrics.offEpa,
+                adjDefEpa: homeMetrics.defEpa,
+                earlyDownSuccessRate: homeMetrics.edsr,
                 specialTeamsEpa: 0.08,
                 trench: {
                   passBlockWinRate: homePBWR,
@@ -354,9 +374,9 @@ Provide a sharp, quantitative markdown report.`;
                 rank: awayRank,
                 logoColor: awayTeamObj.color ? `#${awayTeamObj.color}` : '#334155',
                 blueChipRatio: league === 'CFB' ? (awayRank ? 85 - (awayRank * 2) : 42) : undefined,
-                adjOffEpa: 0.18,
-                adjDefEpa: -0.09,
-                earlyDownSuccessRate: Number((48.8 + ((awayRank ? (26 - awayRank) : 0) * 0.25)).toFixed(1)),
+                adjOffEpa: awayMetrics.offEpa,
+                adjDefEpa: awayMetrics.defEpa,
+                earlyDownSuccessRate: awayMetrics.edsr,
                 specialTeamsEpa: -0.04,
                 trench: {
                   passBlockWinRate: awayPBWR,

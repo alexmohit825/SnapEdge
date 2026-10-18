@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { SAMPLE_MATCHUPS } from './data/sampleMatchups';
-import type { League, Matchup, ShadowConfig } from './types/football';
+import type { League, Matchup, ShadowConfig, EngineTuningConfig } from './types/football';
 import { EdgeExplainer } from './components/EdgeExplainer';
 import { AccuracyStats } from './components/AccuracyStats';
 import { RecursiveOptimizer } from './components/RecursiveOptimizer';
 import { MatchupCard } from './components/MatchupCard';
 import { getInitialShadowConfig } from './utils/shadowExperiments';
+import { getInitialEngineTuningConfig } from './utils/engineTuning';
 import { auditSlateSanity } from './utils/sanityGuardrails';
 import { 
   Zap, 
@@ -25,6 +26,7 @@ export function App() {
   const [isLiveFeed, setIsLiveFeed] = useState(false);
   const [isLoadingFeed, setIsLoadingFeed] = useState(false);
   const [shadowConfig, setShadowConfig] = useState<ShadowConfig>(getInitialShadowConfig());
+  const [tuningConfig, setTuningConfig] = useState<EngineTuningConfig>(getInitialEngineTuningConfig());
 
   // Switch default week when league toggles
   const handleLeagueChange = (league: League) => {
@@ -137,11 +139,13 @@ export function App() {
         {/* Prediction Accuracy Percentage KPIs (As soon as app opens) */}
         <AccuracyStats matchups={matchups} />
 
-        {/* Recursive Learning & Meta-Optimization Engine with Shadow Mode */}
+        {/* Recursive Learning & Meta-Optimization Engine with Direct Math Tuning */}
         <RecursiveOptimizer 
           matchups={matchups} 
           shadowConfig={shadowConfig} 
-          onUpdateShadowConfig={setShadowConfig} 
+          onUpdateShadowConfig={setShadowConfig}
+          tuningConfig={tuningConfig}
+          onUpdateTuningConfig={setTuningConfig}
         />
 
         {/* Beginner-Friendly Explainer Hub */}
@@ -265,7 +269,12 @@ export function App() {
         {filteredMatchups.length > 0 ? (
           <div>
             {filteredMatchups.map((matchup) => (
-              <MatchupCard key={matchup.id} matchup={matchup} shadowConfig={shadowConfig} />
+              <MatchupCard 
+                key={matchup.id} 
+                matchup={matchup} 
+                shadowConfig={shadowConfig} 
+                tuningConfig={tuningConfig}
+              />
             ))}
           </div>
         ) : (

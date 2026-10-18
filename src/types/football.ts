@@ -176,3 +176,20 @@ export interface SanityAuditResult {
   matchupId: string;
 }
 
+// ----------------------------------------------------
+// Recursive Engine Tuning & Calibrated Lessons Types
+// ----------------------------------------------------
+export interface EngineTuningConfig {
+  version: string;
+  presetName: string;
+  trenchWeightMultiplier: number;     // Scales trench pocket physics (default 1.0)
+  edsrMultiplier: number;              // Scales early-down success rate (default 0.22)
+  windPenaltyMultiplier: number;       // Scales aerodynamic weather decay (default 1.0)
+  homeFieldAdvantage: number;          // Base home stadium points (default 2.4)
+  talentDisparityMultiplier: number;   // Scales CFB Blue-Chip disparity (default 1.0)
+  scoringPaceMultiplier: number;       // Scales implied game totals pace (default 1.0)
+  lastUpdated?: string;
+  isCalibrated: boolean;
+  lessonsApplied: string[];
+}
+
