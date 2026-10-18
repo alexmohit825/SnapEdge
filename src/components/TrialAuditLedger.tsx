@@ -12,7 +12,9 @@ import {
   HelpCircle,
   Target,
   Scale,
-  RefreshCw
+  RefreshCw,
+  Activity,
+  Microscope
 } from 'lucide-react';
 import type { Matchup, TrialEntry } from '../types/football';
 import { 
@@ -306,15 +308,20 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
           </div>
         )}
 
-        {/* Collapsible How-To & What is ATS? Guide Box */}
+        {/* Collapsible How-To, ATS, Cohort & MAE Scientific Guide Box */}
         {showGuide && (
           <div className="mt-4 p-4 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/50 text-slate-800 text-xs space-y-4 shadow-sm animate-fadeIn">
             <div className="flex items-start justify-between gap-2 border-b border-indigo-100 pb-3">
               <div className="flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-indigo-600 shrink-0" />
-                <h4 className="text-sm font-bold text-slate-900 tracking-tight">
-                  Prospective Clinical Trial Protocol &amp; ATS Benchmark Guide
-                </h4>
+                <Microscope className="w-4 h-4 text-indigo-600 shrink-0" />
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 tracking-tight">
+                    Physician-Scientist Trial Guide: ATS, Cohorts A/B, and Score MAE
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Translating sports market terminology into formal prospective clinical trial methodology.
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setShowGuide(false)}
@@ -324,15 +331,16 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
               </button>
             </div>
 
+            {/* Grid 1: ATS Fundamentals & Market Breakeven */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Left Column: What is ATS? */}
+              {/* Box 1: What is ATS? */}
               <div className="space-y-2 bg-white/80 p-3.5 rounded-lg border border-indigo-100/80 shadow-2xs">
                 <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs">
                   <Scale className="w-3.5 h-3.5 text-indigo-600" />
                   <span>1. What is ATS (&quot;Against The Spread&quot;)?</span>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
-                  In sports betting, Vegas sportsbooks set a <strong className="text-slate-900">point spread</strong> to handicap the favorite so betting on either side is theoretically a 50/50 proposition.
+                  In sports betting, Vegas sets a <strong className="text-slate-900">point spread</strong> to handicap the favorite so betting on either side is theoretically a 50/50 proposition.
                 </p>
                 <div className="bg-slate-50 p-2.5 rounded-md border border-slate-200/80 text-[11px] text-slate-700 space-y-1">
                   <div>
@@ -344,15 +352,15 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
                   </ul>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
-                  <strong className="text-slate-900">ATS Win Rate</strong> measures whether our mathematical simulation beats the sportsbook&apos;s handicap, rather than just picking the favorite to win straight up.
+                  <strong className="text-slate-900">ATS Win Rate</strong> measures whether our mathematical simulation beats the sportsbook&apos;s handicap, rather than just picking the heavy favorite to win straight up.
                 </p>
               </div>
 
-              {/* Right Column: Interpreting ATS Win Rate */}
+              {/* Box 2: Interpreting ATS Win Rate */}
               <div className="space-y-2 bg-white/80 p-3.5 rounded-lg border border-indigo-100/80 shadow-2xs">
                 <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs">
                   <Target className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>2. How to Interpret ATS Win Rates</span>
+                  <span>2. How to Interpret ATS Benchmarks</span>
                 </div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">
                   Because casinos charge a standard <strong className="text-slate-900">4.76% fee (&quot;the vig&quot; or juice</strong>, typically -110 odds), picking 50% ATS loses money over time.
@@ -378,24 +386,85 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
               </div>
             </div>
 
+            {/* Grid 2: Scientific Cohorts & MAE Calibration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Box 3: Cohort A vs Cohort B (The Scientific Control Design) */}
+              <div className="space-y-2 bg-white/80 p-3.5 rounded-lg border border-indigo-100/80 shadow-2xs">
+                <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs">
+                  <FlaskConical className="w-3.5 h-3.5 text-blue-600" />
+                  <span>3. Cohort A vs. Cohort B: Active Arm vs. Control</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  In formal clinical trial methodology, you isolate the active drug arm from the placebo control arm to rule out random variation.
+                </p>
+                <div className="space-y-2 text-[10.5px]">
+                  <div className="p-2 rounded-md bg-emerald-50/70 border border-emerald-200/80">
+                    <div className="font-bold text-emerald-900 flex items-center justify-between mb-0.5">
+                      <span>Cohort A: High-Edge (Active Arm)</span>
+                      <span className="font-mono text-emerald-700">Divergence ≥ 1.5 pts</span>
+                    </div>
+                    <span className="text-slate-600">
+                      Matchups where SnapEdge&apos;s trench physics and Markov engine strongly disagree with Vegas. This cohort represents our active bets and <strong className="text-emerald-800">must beat the 52.38% breakeven barrier</strong>.
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-md bg-slate-50 border border-slate-200/80">
+                    <div className="font-bold text-slate-900 flex items-center justify-between mb-0.5">
+                      <span>Cohort B: Market-Neutral (Control Arm)</span>
+                      <span className="font-mono text-slate-600">Divergence &lt; 1.5 pts</span>
+                    </div>
+                    <span className="text-slate-600">
+                      Matchups where SnapEdge agrees with the market line. This serves as our <strong className="text-slate-900">negative control</strong>; it should hover near ~50% (random chance), proving our edge is genuine and isolated to Cohort A rather than lucky noise.
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Box 4: What is MAE (Mean Absolute Error) & Why It Signifies Calibration */}
+              <div className="space-y-2 bg-white/80 p-3.5 rounded-lg border border-indigo-100/80 shadow-2xs">
+                <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs">
+                  <Activity className="w-3.5 h-3.5 text-purple-600" />
+                  <span>4. What is MAE (Mean Absolute Error) &amp; Calibration?</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  <strong className="text-slate-900">MAE</strong> is the average absolute difference between the predicted total combined score and the actual final score:
+                </p>
+                <div className="p-2 rounded-md bg-purple-50/70 border border-purple-200/80 text-[11px] font-mono text-center text-purple-900 font-bold">
+                  MAE = Σ | Predicted Total Points - Actual Total Points | ÷ N
+                </div>
+                <p className="text-[10.5px] text-slate-600 leading-relaxed">
+                  <strong className="text-slate-900">Medical Diagnostic Analogy:</strong> MAE is the precision error of a diagnostic device (like calibration drift between a pulse oximeter or continuous glucose monitor and arterial blood gas).
+                </p>
+                <ul className="space-y-1 text-[10.5px] text-slate-600">
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-mono font-bold text-purple-700 shrink-0">&lt; 6.8 pts:</span>
+                    <span><strong className="text-slate-900">Zero-Inflation Institutional Grade.</strong> Proves the engine accurately models clock-bleed pacing and modern field goal logistic curves without hallucinating high scores.</span>
+                  </li>
+                  <li className="flex items-start gap-1.5">
+                    <span className="font-mono font-bold text-slate-700 shrink-0">&gt; 8.5 pts:</span>
+                    <span>Severe score inflation typical of naive offensive-heavy models.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
             {/* Bottom Section: 3-Step Prospective Trial Protocol */}
             <div className="bg-white/80 p-3 rounded-lg border border-indigo-100/80 shadow-2xs">
               <div className="flex items-center gap-1.5 font-bold text-indigo-950 text-xs mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                <span>3. Prospective Clinical Trial Protocol (Weeks 7–10)</span>
+                <span>5. 4-Week Prospective Clinical Trial Protocol &amp; CSV Audit</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] text-slate-600">
                 <div className="p-2 rounded-md bg-slate-50 border border-slate-200/70">
                   <span className="font-bold text-slate-900 block mb-0.5">Step A: Freeze Before Kickoff</span>
-                  <span>Click <strong className="text-blue-700">&quot;Lock Pre-Registration&quot;</strong> on Thursday or Friday. SnapEdge spreads and sides are sealed with cryptographic SHA-256 hashes. No retro-fitting allowed.</span>
+                  <span>Click <strong className="text-blue-700">&quot;Lock Pre-Registration&quot;</strong> on Thursday or Friday. SnapEdge spreads and sides are sealed with cryptographic SHA-256 hashes for all NFL &amp; CFB games in one tap.</span>
                 </div>
                 <div className="p-2 rounded-md bg-slate-50 border border-slate-200/70">
-                  <span className="font-bold text-slate-900 block mb-0.5">Step B: Cohort Stratification</span>
-                  <span>Games with <strong className="text-emerald-700">divergence ≥ 1.5 pts</strong> enter <strong className="text-emerald-800">Cohort A (High-Edge)</strong>. Low-divergence games enter Cohort B (Market-Neutral).</span>
+                  <span className="font-bold text-slate-900 block mb-0.5">Step B: Autonomous Reconciliation</span>
+                  <span>When games finish, click <strong className="text-slate-900">&quot;Sync Scores&quot;</strong> (or open the app). ESPN final scores automatically reconcile SU wins, ATS covers, and MAE error without manual input.</span>
                 </div>
                 <div className="p-2 rounded-md bg-slate-50 border border-slate-200/70">
-                  <span className="font-bold text-slate-900 block mb-0.5">Step C: Unbiased Verification</span>
-                  <span>Final scores update live. The scorecard tallies ATS covers, Straight-Up winners, and Total MAE error. Export to CSV for external audit at any time.</span>
+                  <span className="font-bold text-slate-900 block mb-0.5">Step C: Cumulative 4-Week CSV Export</span>
+                  <span>Click <strong className="text-slate-900">&quot;Export CSV&quot;</strong> anytime. It downloads the entire multi-week audit trail across Weeks 7–10 into a single spreadsheet for external statistical verification.</span>
                 </div>
               </div>
             </div>
