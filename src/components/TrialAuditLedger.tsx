@@ -11,7 +11,8 @@ import {
   Sparkles,
   HelpCircle,
   Target,
-  Scale
+  Scale,
+  RefreshCw
 } from 'lucide-react';
 import type { Matchup, TrialEntry } from '../types/football';
 import { 
@@ -29,7 +30,11 @@ interface TrialAuditLedgerProps {
 export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
-  const [selectedCohort, setSelectedCohort] = useState<'ALL' | 'HIGH_EDGE' | 'NEUTRAL'>('ALL');
+  const [selectedCohort, setSelectedCohort] = useState<'ALL' | 'NFL' | 'CFB' | 'HIGH_EDGE' | 'NEUTRAL'>('ALL');
+  const [isSyncingScores, setIsSyncingScores] = useState(false);
+  const [isLocking, setIsLocking] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+
   const [entries, setEntries] = useState<TrialEntry[]>(() => {
     const saved = loadSavedTrialEntries();
     if (saved && saved.length > 0) {
@@ -39,24 +44,105 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
     return createFrozenTrialEntries(matchups);
   });
 
-  // Reconcile whenever matchups update (e.g. game scores go final)
+  // Fetch both NFL and CFB slates simultaneously to cover all weekend/weekly games in one operation
+  const fetchUnifiedSlates = async (): Promise<Matchup[]> => {
+    try {
+      const [nflRes, cfbRes] = await Promise.all([
+        fetch('/api/slate?league=NFL').catch(() => null),
+        fetch('/api/slate?league=CFB').catch(() => null)
+      ]);
+
+      const all: Matchup[] = [];
+      if (nflRes && nflRes.ok) {
+        const nflData = await nflRes.json();
+        if (nflData.matchups && Array.isArray(nflData.matchups)) {
+          all.push(...nflData.matchups);
+        }
+      }
+      if (cfbRes && cfbRes.ok) {
+        const cfbData = await cfbRes.json();
+        if (cfbData.matchups && Array.isArray(cfbData.matchups)) {
+          all.push(...cfbData.matchups);
+        }
+      }
+
+      if (all.length > 0) return all;
+    } catch (err) {
+      console.warn('Could not fetch unified slates, using current props:', err);
+    }
+    return matchups;
+  };
+
+  // Autonomous Score Fetching & Reconciliation on mount and when matchups update
   useEffect(() => {
-    setEntries(prev => {
-      const updated = reconcileTrialEntries(prev, matchups);
-      saveTrialEntries(updated);
-      return updated;
-    });
+    let isMounted = true;
+    async function autoReconcileScores() {
+      setIsSyncingScores(true);
+      try {
+        const unified = await fetchUnifiedSlates();
+        if (isMounted) {
+          setEntries(prev => {
+            const updated = reconcileTrialEntries(prev, unified);
+            saveTrialEntries(updated);
+            return updated;
+          });
+        }
+      } finally {
+        if (isMounted) setIsSyncingScores(false);
+      }
+    }
+
+    autoReconcileScores();
+    return () => { isMounted = false; };
   }, [matchups]);
 
   const scorecard = computeTrialScorecard(entries);
 
-  // Freeze / Pre-Register New Slate Button
-  const handleFreezeSlate = () => {
-    if (window.confirm('Freeze and lock current slate for prospective trial? Existing games will remain archived.')) {
-      const newEntries = createFrozenTrialEntries(matchups);
-      const combined = [...newEntries, ...entries.filter(e => !newEntries.some(ne => ne.matchupId === e.matchupId))];
+  // Freeze / Pre-Register New Slate (One-click: Locks ALL College Football weekend + NFL week games)
+  const handleFreezeSlate = async () => {
+    if (!window.confirm('Freeze and lock the upcoming slate for prospective trial? This will pre-register ALL weekend College Football and NFL games with SHA-256 cryptographic hashes.')) {
+      return;
+    }
+
+    setIsLocking(true);
+    try {
+      const unified = await fetchUnifiedSlates();
+      const newEntries = createFrozenTrialEntries(unified);
+
+      // Merge with existing archived entries without duplicating matchup IDs
+      const combined = [
+        ...newEntries, 
+        ...entries.filter(e => !newEntries.some(ne => ne.matchupId === e.matchupId))
+      ];
+
       setEntries(combined);
       saveTrialEntries(combined);
+
+      const nflCount = newEntries.filter(e => e.league === 'NFL').length;
+      const cfbCount = newEntries.filter(e => e.league === 'CFB').length;
+      setSyncMessage(`Locked ${newEntries.length} games (${nflCount} NFL + ${cfbCount} CFB) with SHA-256 hashes!`);
+      setTimeout(() => setSyncMessage(null), 6000);
+    } finally {
+      setIsLocking(false);
+    }
+  };
+
+  // Manual On-Demand Score Sync
+  const handleManualSync = async () => {
+    setIsSyncingScores(true);
+    try {
+      const unified = await fetchUnifiedSlates();
+      let updatedEntries: TrialEntry[] = [];
+      setEntries(prev => {
+        updatedEntries = reconcileTrialEntries(prev, unified);
+        saveTrialEntries(updatedEntries);
+        return updatedEntries;
+      });
+      const finalCount = updatedEntries.filter(e => e.isFinal).length;
+      setSyncMessage(`Reconciled scores: ${finalCount} completed games recorded.`);
+      setTimeout(() => setSyncMessage(null), 5000);
+    } finally {
+      setIsSyncingScores(false);
     }
   };
 
@@ -115,6 +201,8 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
   };
 
   const filteredEntries = entries.filter(e => {
+    if (selectedCohort === 'NFL') return e.league === 'NFL';
+    if (selectedCohort === 'CFB') return e.league === 'CFB';
     if (selectedCohort === 'HIGH_EDGE') return e.cohort === 'COHORT_A_HIGH_EDGE';
     if (selectedCohort === 'NEUTRAL') return e.cohort === 'COHORT_B_NEUTRAL';
     return true;
@@ -142,7 +230,7 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
-                Locked predictions with cryptographic timestamps. Proves accuracy forward-testing across Weeks 7-10 with zero hindsight bias.
+                Locked predictions with cryptographic timestamps. Autonomous ESPN score fetching forward-tests Weeks 7–10 with zero hindsight bias.
               </p>
             </div>
           </div>
@@ -164,11 +252,22 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
 
             <button
               onClick={handleFreezeSlate}
-              className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 hover:bg-blue-100 transition-colors shadow-2xs"
-              title="Lock Current Slate for Scientific Pre-Registration"
+              disabled={isLocking}
+              className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 hover:bg-blue-100 transition-colors shadow-2xs disabled:opacity-50"
+              title="Lock Current Slate for Scientific Pre-Registration across NFL and College Football"
             >
               <Lock className="h-3.5 w-3.5 text-blue-600" />
-              <span>Lock Pre-Registration</span>
+              <span>{isLocking ? 'Locking NFL + CFB...' : 'Lock Pre-Registration'}</span>
+            </button>
+
+            <button
+              onClick={handleManualSync}
+              disabled={isSyncingScores}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs disabled:opacity-50"
+              title="Sync latest live/final scores from ESPN for NFL and CFB"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 text-slate-600 ${isSyncingScores ? 'animate-spin' : ''}`} />
+              <span>{isSyncingScores ? 'Syncing...' : 'Sync Scores'}</span>
             </button>
 
             <button
@@ -190,6 +289,22 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
             </button>
           </div>
         </div>
+
+        {/* Sync & Confirmation Banner */}
+        {syncMessage && (
+          <div className="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span>{syncMessage}</span>
+            </div>
+            <button 
+              onClick={() => setSyncMessage(null)} 
+              className="text-[11px] text-emerald-700 hover:text-emerald-950 font-bold px-1.5 py-0.5 rounded hover:bg-emerald-100"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Collapsible How-To & What is ATS? Guide Box */}
         {showGuide && (
@@ -347,19 +462,35 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
           <div className="mt-5 border-t border-slate-100 pt-5 space-y-4 animate-fadeIn">
             {/* Filter Tabs */}
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-bold">
+              <div className="flex flex-wrap rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-bold gap-1">
                 <button
                   onClick={() => setSelectedCohort('ALL')}
                   className={`px-3 py-1 rounded-md transition-all ${
-                    selectedCohort === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                    selectedCohort === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  All Pre-Registered ({entries.length})
+                  All ({entries.length})
+                </button>
+                <button
+                  onClick={() => setSelectedCohort('NFL')}
+                  className={`px-3 py-1 rounded-md transition-all ${
+                    selectedCohort === 'NFL' ? 'bg-white text-blue-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  NFL ({entries.filter(e => e.league === 'NFL').length})
+                </button>
+                <button
+                  onClick={() => setSelectedCohort('CFB')}
+                  className={`px-3 py-1 rounded-md transition-all ${
+                    selectedCohort === 'CFB' ? 'bg-white text-orange-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  CFB ({entries.filter(e => e.league === 'CFB').length})
                 </button>
                 <button
                   onClick={() => setSelectedCohort('HIGH_EDGE')}
                   className={`px-3 py-1 rounded-md transition-all ${
-                    selectedCohort === 'HIGH_EDGE' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-600'
+                    selectedCohort === 'HIGH_EDGE' ? 'bg-white text-emerald-800 shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Cohort A: High-Edge ({entries.filter(e => e.cohort === 'COHORT_A_HIGH_EDGE').length})
@@ -367,7 +498,7 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
                 <button
                   onClick={() => setSelectedCohort('NEUTRAL')}
                   className={`px-3 py-1 rounded-md transition-all ${
-                    selectedCohort === 'NEUTRAL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                    selectedCohort === 'NEUTRAL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Cohort B: Neutral ({entries.filter(e => e.cohort === 'COHORT_B_NEUTRAL').length})
