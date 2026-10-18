@@ -1,4 +1,5 @@
 import type { Matchup, SimulationResult, ShadowConfig, ShadowComparison, DeterminismCheckResult, EngineTuningConfig } from '../types/football';
+import { runMarkovSimulation } from './markovSimulator';
 
 /**
  * Deterministic Pseudorandom Number Generator (Mulberry32)
@@ -41,18 +42,24 @@ export interface SimulationOptions {
   isShadowMode?: boolean;
   shadowConfig?: ShadowConfig;
   tuningConfig?: EngineTuningConfig;
+  engine?: 'MARKOV_DRIVE' | 'GAUSSIAN_MACRO';
 }
 
 /**
- * SnapEdge High-Performance Deterministic Monte Carlo Engine
- * Runs 10,000 iterations to generate discrete scoring distributions,
- * covering market spreads, blowout risks, parameter perturbations, and candidate shadow mode math.
+ * SnapEdge High-Performance Deterministic Simulation Engine
+ * Runs Absorbing Markov Chain Drive Engine by default for discrete, realistic possession-based scores,
+ * or Gaussian Macro Engine if explicitly requested.
  */
 export function runMonteCarloSimulation(
   matchup: Matchup,
   perturbations: SimulationPerturbations = {},
   options: SimulationOptions = {}
 ): SimulationResult {
+  // Use Absorbing Markov Drive Engine by default
+  if (options.engine !== 'GAUSSIAN_MACRO') {
+    return runMarkovSimulation(matchup, perturbations, options);
+  }
+
   const iterations = options.iterations ?? 10000;
   const isShadowMode = Boolean(options.isShadowMode || (options.shadowConfig && options.shadowConfig.enabled));
   const activeExps = (isShadowMode && options.shadowConfig) ? options.shadowConfig.activeExperiments : {};

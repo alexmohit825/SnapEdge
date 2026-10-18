@@ -122,6 +122,13 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-swiss transition-all hover:shadow-swiss-hover hover:border-slate-300 mb-6">
+      {/* Top Team Color Dual Gradient Bar */}
+      <div 
+        className="h-1.5 w-full opacity-90"
+        style={{
+          background: `linear-gradient(90deg, ${matchup.awayTeam.logoColor} 0%, ${matchup.awayTeam.logoColor} 48%, #CBD5E1 50%, ${matchup.homeTeam.logoColor} 52%, ${matchup.homeTeam.logoColor} 100%)`
+        }}
+      />
       {/* Top Banner: League, Game Time, & Edge Pill */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-slate-50/70 px-5 py-2.5">
         <div className="flex items-center gap-2.5">
@@ -327,6 +334,63 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
                 </span>
               </div>
             )}
+
+            {/* Markov Drive Telemetry Capsule */}
+            <div className="rounded-xl border border-amber-200/90 bg-gradient-to-r from-amber-50/50 via-white to-sky-50/50 p-2.5 shadow-2xs">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="text-[10px] font-mono font-bold tracking-wider text-slate-800 uppercase">
+                    🏈 Markov Drive Telemetry
+                  </span>
+                </div>
+                <span className="text-[9px] font-mono font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-200">
+                  5,000 POSSESSIONS
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                {/* Projected Touchdowns */}
+                <div className="bg-white/90 p-1.5 rounded-lg border border-amber-100 shadow-2xs">
+                  <span className="block text-[8px] font-mono uppercase font-bold text-amber-700">Projected TDs</span>
+                  <div className="flex items-center justify-center gap-1 text-xs font-mono font-black text-slate-900 mt-0.5">
+                    <span style={{ color: matchup.awayTeam.logoColor }}>{sim.projectedTouchdownsAway ?? '—'}</span>
+                    <span className="text-slate-300 font-normal">:</span>
+                    <span style={{ color: matchup.homeTeam.logoColor }}>{sim.projectedTouchdownsHome ?? '—'}</span>
+                  </div>
+                </div>
+
+                {/* Projected Field Goals */}
+                <div className="bg-white/90 p-1.5 rounded-lg border border-sky-100 shadow-2xs">
+                  <span className="block text-[8px] font-mono uppercase font-bold text-sky-700">Projected FGs</span>
+                  <div className="flex items-center justify-center gap-1 text-xs font-mono font-black text-slate-900 mt-0.5">
+                    <span style={{ color: matchup.awayTeam.logoColor }}>{sim.projectedFieldGoalsAway ?? '—'}</span>
+                    <span className="text-slate-300 font-normal">:</span>
+                    <span style={{ color: matchup.homeTeam.logoColor }}>{sim.projectedFieldGoalsHome ?? '—'}</span>
+                  </div>
+                </div>
+
+                {/* Red Zone Efficiency */}
+                <div className="bg-white/90 p-1.5 rounded-lg border border-emerald-100 shadow-2xs">
+                  <span className="block text-[8px] font-mono uppercase font-bold text-emerald-700">Red Zone Conv</span>
+                  <div className="flex items-center justify-center gap-1 text-xs font-mono font-black text-slate-900 mt-0.5">
+                    <span className="text-emerald-700">{sim.redZoneEfficiencyAway ? `${sim.redZoneEfficiencyAway}%` : '—'}</span>
+                    <span className="text-slate-300 font-normal">:</span>
+                    <span className="text-emerald-700">{sim.redZoneEfficiencyHome ? `${sim.redZoneEfficiencyHome}%` : '—'}</span>
+                  </div>
+                </div>
+
+                {/* Expected Turnovers */}
+                <div className="bg-white/90 p-1.5 rounded-lg border border-rose-100 shadow-2xs">
+                  <span className="block text-[8px] font-mono uppercase font-bold text-rose-700">Exp Turnovers</span>
+                  <div className="flex items-center justify-center gap-1 text-xs font-mono font-black text-slate-900 mt-0.5">
+                    <span className="text-rose-600">{sim.turnoversExpectedAway ?? '—'}</span>
+                    <span className="text-slate-300 font-normal">:</span>
+                    <span className="text-rose-600">{sim.turnoversExpectedHome ?? '—'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right: Modern Market vs Model Telemetry Capsule */}

@@ -114,6 +114,17 @@ export interface SimulationResult {
   distributionScores: { margin: number; count: number }[];
   seedUsed?: number;
   isDeterministic?: boolean;
+  
+  // Markov Drive Level Telemetry
+  simulationEngine?: 'MARKOV_DRIVE' | 'GAUSSIAN_MACRO';
+  projectedTouchdownsHome?: number;
+  projectedTouchdownsAway?: number;
+  projectedFieldGoalsHome?: number;
+  projectedFieldGoalsAway?: number;
+  redZoneEfficiencyHome?: number;
+  redZoneEfficiencyAway?: number;
+  turnoversExpectedHome?: number;
+  turnoversExpectedAway?: number;
 }
 
 // ----------------------------------------------------
