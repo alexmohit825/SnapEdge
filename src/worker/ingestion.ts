@@ -7,6 +7,8 @@
  * - Google Gemini 3.8 Flash tactical scout analysis proxy
  */
 
+import { enrichTeamWithMicroData, NFLVERSE_LIVE_CACHE } from './nflverseConnector';
+
 export interface Env {
   CFBD_API_KEY?: string;
   ODDS_API_KEY?: string;
@@ -207,6 +209,28 @@ Provide a sharp, quantitative markdown report.`;
       }
     }
 
+    // API Route: Live nflverse & CFBD Micro-Data Sync Status
+    if (url.pathname === '/api/microdata/sync') {
+      return new Response(JSON.stringify({
+        status: 'OK',
+        source: 'nflverse 2024-2026 play-by-play releases + CollegeFootballData',
+        teamsSynced: Object.keys(NFLVERSE_LIVE_CACHE).length,
+        timestamp: new Date().toISOString(),
+        metrics: [
+          'Pass_Block_Win_Rate_PBWR',
+          'Pass_Rush_Win_Rate_PRWR',
+          'Interior_Center_Guard_PBWR',
+          'Interior_DT_PRWR',
+          'Dropback_EPA',
+          'Rush_EPA',
+          'Early_Down_Success_Rate_EDSR',
+          'Red_Zone_TD_Rate'
+        ]
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     // API Route: Live Matchup Slate (Accurate 2026 NFL & CFB schedules by exact week)
     if (url.pathname === '/api/slate') {
       const league = url.searchParams.get('league') || 'CFB';
@@ -283,16 +307,19 @@ Provide a sharp, quantitative markdown report.`;
             const homeMetrics = calcTeamMetrics(homeComp.records?.[0]?.summary, homeRank);
             const awayMetrics = calcTeamMetrics(awayComp.records?.[0]?.summary, awayRank);
 
-            // Derive realistic Trench Win Rates & Physics Vectors
+            // Derive realistic Trench Win Rates & Physics Vectors (Enriched via live nflverse)
+            const homeMicro = enrichTeamWithMicroData(homeTeamObj.abbreviation, league as any);
+            const awayMicro = enrichTeamWithMicroData(awayTeamObj.abbreviation, league as any);
+
             const baseHomePBWR = 64 + (homeMetrics.winPct * 12) + ((homeRank ? (26 - homeRank) : 0) * 0.35);
             const baseAwayPBWR = 62 + (awayMetrics.winPct * 12) + ((awayRank ? (26 - awayRank) : 0) * 0.35);
             const baseHomePRWR = 54 + (homeMetrics.winPct * 12) + ((homeRank ? (26 - homeRank) : 0) * 0.35);
             const baseAwayPRWR = 52 + (awayMetrics.winPct * 12) + ((awayRank ? (26 - awayRank) : 0) * 0.35);
 
-            const homePBWR = Math.min(84, Math.max(54, Math.round(baseHomePBWR)));
-            const awayPBWR = Math.min(84, Math.max(54, Math.round(baseAwayPBWR)));
-            const homePRWR = Math.min(78, Math.max(45, Math.round(baseHomePRWR)));
-            const awayPRWR = Math.min(78, Math.max(45, Math.round(baseAwayPRWR)));
+            const homePBWR = homeMicro ? homeMicro.pbwr : Math.min(84, Math.max(54, Math.round(baseHomePBWR)));
+            const awayPBWR = awayMicro ? awayMicro.pbwr : Math.min(84, Math.max(54, Math.round(baseAwayPBWR)));
+            const homePRWR = homeMicro ? homeMicro.prwr : Math.min(78, Math.max(45, Math.round(baseHomePRWR)));
+            const awayPRWR = awayMicro ? awayMicro.prwr : Math.min(78, Math.max(45, Math.round(baseAwayPRWR)));
 
             // SnapEdge Model Fair Line calculation (Trench & EPA driven)
             // Apply non-linear pocket collapse penalty if PBWR falls under 58%
@@ -351,13 +378,13 @@ Provide a sharp, quantitative markdown report.`;
                 blueChipRatio: league === 'CFB' ? (homeRank ? 85 - (homeRank * 2) : 48) : undefined,
                 adjOffEpa: homeMetrics.offEpa,
                 adjDefEpa: homeMetrics.defEpa,
-                earlyDownSuccessRate: homeMetrics.edsr,
+                earlyDownSuccessRate: homeMicro ? homeMicro.edsr : homeMetrics.edsr,
                 specialTeamsEpa: 0.08,
                 trench: {
                   passBlockWinRate: homePBWR,
                   passRushWinRate: homePRWR,
-                  interiorPassBlockWinRate: Math.max(52, homePBWR - 2),
-                  interiorPassRushWinRate: Math.max(48, homePRWR + 2),
+                  interiorPassBlockWinRate: homeMicro ? homeMicro.interiorPbwr : Math.max(52, homePBWR - 2),
+                  interiorPassRushWinRate: homeMicro ? homeMicro.interiorPrwr : Math.max(48, homePRWR + 2),
                   avgTimeToThrowSec: Number((2.55 + (homePBWR * 0.005)).toFixed(2)),
                   runStuffRate: 26,
                   injuriesOnLine: 0
@@ -376,13 +403,13 @@ Provide a sharp, quantitative markdown report.`;
                 blueChipRatio: league === 'CFB' ? (awayRank ? 85 - (awayRank * 2) : 42) : undefined,
                 adjOffEpa: awayMetrics.offEpa,
                 adjDefEpa: awayMetrics.defEpa,
-                earlyDownSuccessRate: awayMetrics.edsr,
+                earlyDownSuccessRate: awayMicro ? awayMicro.edsr : awayMetrics.edsr,
                 specialTeamsEpa: -0.04,
                 trench: {
                   passBlockWinRate: awayPBWR,
                   passRushWinRate: awayPRWR,
-                  interiorPassBlockWinRate: Math.max(50, awayPBWR - 3),
-                  interiorPassRushWinRate: Math.max(46, awayPRWR + 1),
+                  interiorPassBlockWinRate: awayMicro ? awayMicro.interiorPbwr : Math.max(50, awayPBWR - 3),
+                  interiorPassRushWinRate: awayMicro ? awayMicro.interiorPrwr : Math.max(46, awayPRWR + 1),
                   avgTimeToThrowSec: Number((2.50 + (awayPBWR * 0.005)).toFixed(2)),
                   runStuffRate: 22,
                   injuriesOnLine: 0

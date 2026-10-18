@@ -8,3 +8,8 @@ Write-Host "TOTAL_GAMES=$($api.totalGames)"
 Write-Host "SAMPLE_GAME=$($api.matchups[0].awayTeam.name) at $($api.matchups[0].homeTeam.name)"
 Write-Host "SAMPLE_TOTAL=$($api.matchups[0].market.total)"
 Write-Host "SAMPLE_SPREAD=$($api.matchups[0].market.spread)"
+
+$micro = Invoke-RestMethod -Uri 'https://snapedge.mohalex.workers.dev/api/microdata/sync' -UseBasicParsing
+Write-Host "MICRODATA_STATUS=$($micro.status)"
+Write-Host "MICRODATA_SOURCE=$($micro.source)"
+Write-Host "TEAMS_SYNCED=$($micro.teamsSynced)"
