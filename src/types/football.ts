@@ -226,3 +226,47 @@ export interface EngineTuningConfig {
   lessonsApplied: string[];
 }
 
+// ----------------------------------------------------
+// Prospective 4-Week Clinical Trial Ledger Types
+// ----------------------------------------------------
+export interface TrialEntry {
+  matchupId: string;
+  gameTitle: string;
+  league: League;
+  week: number;
+  lockedAt: string;
+  sha256Hash: string;
+  
+  // Frozen Pre-Registered Predictions
+  marketSpread: number;
+  marketTotal: number;
+  snapEdgeSpread: number;
+  snapEdgeTotal: number;
+  recommendedSide: 'HOME' | 'AWAY';
+  divergencePoints: number;
+  cohort: 'COHORT_A_HIGH_EDGE' | 'COHORT_B_NEUTRAL';
+  
+  // Post-Game Reconciled Reality
+  actualScoreHome?: number;
+  actualScoreAway?: number;
+  actualWinner?: 'HOME' | 'AWAY';
+  isSuWinnerCorrect?: boolean;
+  isAtsCoverCorrect?: boolean;
+  totalPointsErrorMae?: number;
+  clvStatus?: 'CLV_BEAT' | 'CLV_PUSH' | 'CLV_MISSED';
+  isFinal: boolean;
+}
+
+export interface TrialScorecard {
+  totalGames: number;
+  completedGames: number;
+  suCorrect: number;
+  suWinRatePct: number;
+  highEdgeAtsCorrect: number;
+  highEdgeAtsTotal: number;
+  highEdgeAtsWinRatePct: number;
+  scoreTotalMae: number;
+  clvBeatRatePct: number;
+  verdict: 'EXCEEDING_SYNDICATE_GRADE' | 'SOLID_PROFITABLE' | 'PRELIMINARY_SAMPLE';
+}
+

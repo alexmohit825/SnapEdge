@@ -4,6 +4,7 @@ import type { League, Matchup, ShadowConfig, EngineTuningConfig } from './types/
 import { EdgeExplainer } from './components/EdgeExplainer';
 import { TruthEngineExplainer } from './components/TruthEngineExplainer';
 import { CLVAuditDashboard } from './components/CLVAuditDashboard';
+import { TrialAuditLedger } from './components/TrialAuditLedger';
 import { AccuracyStats } from './components/AccuracyStats';
 import { RecursiveOptimizer } from './components/RecursiveOptimizer';
 import { MatchupCard } from './components/MatchupCard';
@@ -159,6 +160,9 @@ export function App() {
       <main className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
         {/* Prediction Accuracy Percentage KPIs (As soon as app opens) */}
         <AccuracyStats matchups={matchups} />
+
+        {/* 4-Week Prospective Scientific Trial Audit Ledger */}
+        <TrialAuditLedger matchups={matchups} />
 
         {/* Recursive Learning & Meta-Optimization Engine with Direct Math Tuning */}
         <RecursiveOptimizer 
