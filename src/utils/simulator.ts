@@ -1,5 +1,6 @@
 import type { Matchup, SimulationResult, ShadowConfig, ShadowComparison, DeterminismCheckResult, EngineTuningConfig } from '../types/football';
 import { runMarkovSimulation } from './markovSimulator';
+import { runMarkovTensorSimulation } from './markovTensorEngine';
 
 /**
  * Deterministic Pseudorandom Number Generator (Mulberry32)
@@ -42,22 +43,25 @@ export interface SimulationOptions {
   isShadowMode?: boolean;
   shadowConfig?: ShadowConfig;
   tuningConfig?: EngineTuningConfig;
-  engine?: 'MARKOV_DRIVE' | 'GAUSSIAN_MACRO';
+  engine?: 'MARKOV_TENSOR_5_5' | 'MARKOV_DRIVE' | 'GAUSSIAN_MACRO';
 }
 
 /**
  * SnapEdge High-Performance Deterministic Simulation Engine
- * Runs Absorbing Markov Chain Drive Engine by default for discrete, realistic possession-based scores,
- * or Gaussian Macro Engine if explicitly requested.
+ * Runs Tier-5.5 4,000-State Discrete Markov Transition Tensor by default for true down-and-distance precision,
+ * or Absorbing Markov Drive Engine / Gaussian Macro Engine if explicitly requested.
  */
 export function runMonteCarloSimulation(
   matchup: Matchup,
   perturbations: SimulationPerturbations = {},
   options: SimulationOptions = {}
 ): SimulationResult {
-  // Use Absorbing Markov Drive Engine by default
-  if (options.engine !== 'GAUSSIAN_MACRO') {
+  // Use Tier 5.5 Markov State-Space Tensor by default
+  if (options.engine === 'MARKOV_DRIVE') {
     return runMarkovSimulation(matchup, perturbations, options);
+  }
+  if (options.engine !== 'GAUSSIAN_MACRO') {
+    return runMarkovTensorSimulation(matchup, perturbations, options);
   }
 
   const iterations = options.iterations ?? 10000;

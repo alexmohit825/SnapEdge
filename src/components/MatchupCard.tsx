@@ -335,18 +335,25 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
               </div>
             )}
 
-            {/* Markov Drive Telemetry Capsule */}
-            <div className="rounded-xl border border-amber-200/90 bg-gradient-to-r from-amber-50/50 via-white to-sky-50/50 p-2.5 shadow-2xs">
+            {/* Tier 5.5 State-Space Tensor Telemetry Capsule */}
+            <div className="rounded-xl border border-emerald-200/90 bg-gradient-to-r from-emerald-50/50 via-white to-sky-50/50 p-2.5 shadow-2xs">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[10px] font-mono font-bold tracking-wider text-slate-800 uppercase">
-                    🏈 Markov Drive Telemetry
+                    🔬 Tier 5.5 State-Space Tensor
                   </span>
                 </div>
-                <span className="text-[9px] font-mono font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-200">
-                  5,000 POSSESSIONS
-                </span>
+                <div className="flex items-center gap-1">
+                  {sim.clvAlphaBasisPoints !== undefined && (
+                    <span className="text-[9px] font-mono font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200">
+                      +{sim.clvAlphaBasisPoints} BPS CLV
+                    </span>
+                  )}
+                  <span className="text-[9px] font-mono font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-200">
+                    4,000 STATES
+                  </span>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
@@ -388,6 +395,26 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
                     <span className="text-slate-300 font-normal">:</span>
                     <span className="text-rose-600">{sim.turnoversExpectedHome ?? '—'}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Down-and-Distance State Space Row */}
+              <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-emerald-100/70 text-center text-[10px] font-mono">
+                <div className="bg-white/80 p-1.5 rounded-lg border border-slate-100 flex items-center justify-between px-2">
+                  <span className="text-slate-500 font-sans font-bold text-[9px] uppercase">3rd Down Conv:</span>
+                  <span className="font-bold text-slate-800">
+                    <span style={{ color: matchup.awayTeam.logoColor }}>{sim.thirdDownConversionPctAway ? `${sim.thirdDownConversionPctAway}%` : '—'}</span>
+                    <span className="text-slate-300 mx-1">:</span>
+                    <span style={{ color: matchup.homeTeam.logoColor }}>{sim.thirdDownConversionPctHome ? `${sim.thirdDownConversionPctHome}%` : '—'}</span>
+                  </span>
+                </div>
+                <div className="bg-white/80 p-1.5 rounded-lg border border-slate-100 flex items-center justify-between px-2">
+                  <span className="text-slate-500 font-sans font-bold text-[9px] uppercase">Explosive Plays:</span>
+                  <span className="font-bold text-slate-800">
+                    <span style={{ color: matchup.awayTeam.logoColor }}>{sim.explosivePlayRateAway ?? '—'}</span>
+                    <span className="text-slate-300 mx-1">:</span>
+                    <span style={{ color: matchup.homeTeam.logoColor }}>{sim.explosivePlayRateHome ?? '—'}</span>
+                  </span>
                 </div>
               </div>
             </div>

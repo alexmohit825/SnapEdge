@@ -115,8 +115,8 @@ export interface SimulationResult {
   seedUsed?: number;
   isDeterministic?: boolean;
   
-  // Markov Drive Level Telemetry
-  simulationEngine?: 'MARKOV_DRIVE' | 'GAUSSIAN_MACRO';
+  // Markov State-Space Tensor Level Telemetry (Tier 5.5)
+  simulationEngine?: 'MARKOV_TENSOR_5_5' | 'MARKOV_DRIVE' | 'GAUSSIAN_MACRO';
   projectedTouchdownsHome?: number;
   projectedTouchdownsAway?: number;
   projectedFieldGoalsHome?: number;
@@ -125,6 +125,25 @@ export interface SimulationResult {
   redZoneEfficiencyAway?: number;
   turnoversExpectedHome?: number;
   turnoversExpectedAway?: number;
+  thirdDownConversionPctHome?: number;
+  thirdDownConversionPctAway?: number;
+  explosivePlayRateHome?: number;
+  explosivePlayRateAway?: number;
+  clvAlphaBasisPoints?: number;
+  gameScriptPaceSecondsHome?: number;
+  gameScriptPaceSecondsAway?: number;
+}
+
+export interface CLVRecord {
+  matchupId: string;
+  gameTitle: string;
+  league: League;
+  openingSpread: number;
+  snapEdgeFairSpread: number;
+  closingSpread: number;
+  clvDelta: number;
+  clvAlphaBps: number;
+  status: 'CLV_BEAT' | 'CLV_PUSH' | 'CLV_MISSED';
 }
 
 // ----------------------------------------------------

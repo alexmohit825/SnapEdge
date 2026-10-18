@@ -3,6 +3,7 @@ import { SAMPLE_MATCHUPS } from './data/sampleMatchups';
 import type { League, Matchup, ShadowConfig, EngineTuningConfig } from './types/football';
 import { EdgeExplainer } from './components/EdgeExplainer';
 import { TruthEngineExplainer } from './components/TruthEngineExplainer';
+import { CLVAuditDashboard } from './components/CLVAuditDashboard';
 import { AccuracyStats } from './components/AccuracyStats';
 import { RecursiveOptimizer } from './components/RecursiveOptimizer';
 import { MatchupCard } from './components/MatchupCard';
@@ -173,6 +174,9 @@ export function App() {
 
         {/* The Truth Engine: Sportsbooks vs NextGen Stats in Simple English */}
         <TruthEngineExplainer />
+
+        {/* Institutional Closing Line Value (CLV) Alpha Audit Dashboard */}
+        <CLVAuditDashboard matchups={matchups} />
 
         {/* League Selector Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">

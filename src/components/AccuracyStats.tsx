@@ -132,7 +132,7 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
           </div>
         </div>
 
-        {/* Absorbing Markov Drive Engine Status Card */}
+        {/* Tier-5.5 State-Space Markov Tensor Engine Status Card */}
         <div className="relative overflow-hidden rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-500/10 via-white to-teal-500/5 p-4 shadow-swiss hover:shadow-swiss-hover transition-all">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
           
@@ -144,10 +144,10 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-700 font-bold block flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  Absorbing Markov Engine
+                  Tier-5.5 Markov Tensor
                 </span>
                 <h4 className="text-sm font-bold text-slate-900">
-                  Possession DGP
+                  4,000 State Space
                 </h4>
               </div>
             </div>
@@ -155,11 +155,11 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
             <div className="text-right">
               <div className="flex items-baseline justify-end gap-1">
                 <span className="text-2xl font-mono font-black text-emerald-600">
-                  ACTIVE
+                  TIER 5.5
                 </span>
               </div>
               <span className="text-[10px] font-mono text-slate-500 block">
-                5,000 Chains / ~45ms
+                Down × Distance × Yardline
               </span>
             </div>
           </div>
@@ -167,10 +167,10 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
           <div className="mt-3 pt-3 border-t border-emerald-100 flex items-center justify-between text-xs text-slate-600">
             <span className="flex items-center gap-1.5 font-medium text-emerald-800">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Discrete Score Guardrails</span>
+              <span>CLV Alpha & Clock Velocity</span>
             </span>
             <span className="font-mono text-[11px] font-semibold text-emerald-900 bg-emerald-100/70 px-2 py-0.5 rounded border border-emerald-200">
-              0.00% Score Inflation
+              Syndicate Grade
             </span>
           </div>
         </div>
