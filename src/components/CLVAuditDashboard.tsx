@@ -33,14 +33,14 @@ export const CLVAuditDashboard: React.FC<CLVAuditDashboardProps> = ({ matchups }
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
-                  Closing Line Value (CLV) Alpha Audit
+                  Beating Vegas Early: Closing Line Value (CLV)
                 </h3>
                 <span className="hidden sm:inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
-                  <Sparkles className="w-3 h-3 mr-1 text-emerald-500" /> Quantitative Gold Standard
+                  <Sparkles className="w-3 h-3 mr-1 text-emerald-500" /> Market Proof
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
-                The metric institutional syndicates use to prove mathematical superiority over retail sportsbooks.
+                Measures whether our picks got you better odds early in the week before Vegas moved the line by kickoff.
               </p>
             </div>
           </div>
@@ -48,10 +48,10 @@ export const CLVAuditDashboard: React.FC<CLVAuditDashboardProps> = ({ matchups }
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 font-mono text-xs">
               <span className="rounded-lg bg-emerald-100 text-emerald-800 px-2.5 py-1 font-bold">
-                {clvBeatRatePct}% CLV BEAT RATE
+                {clvBeatRatePct}% BEAT FINAL VEGAS LINE
               </span>
               <span className="rounded-lg bg-teal-100 text-teal-800 px-2.5 py-1 font-bold">
-                +{averageAlphaBps} BPS ALPHA
+                +{averageAlphaBps} BPS VALUE
               </span>
             </div>
 
@@ -60,7 +60,7 @@ export const CLVAuditDashboard: React.FC<CLVAuditDashboardProps> = ({ matchups }
               className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/70 px-3.5 py-2 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors shadow-2xs"
               aria-expanded={isOpen}
             >
-              <span>{isOpen ? 'Collapse CLV Audit' : 'Inspect CLV Alpha Proof'}</span>
+              <span>{isOpen ? 'Close Explainer' : 'How We Beat Vegas Early'}</span>
               {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </button>
           </div>
@@ -72,8 +72,8 @@ export const CLVAuditDashboard: React.FC<CLVAuditDashboardProps> = ({ matchups }
             <div className="bg-emerald-50/50 rounded-xl p-3 border border-emerald-100 text-xs text-slate-700 leading-relaxed flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
               <div>
-                <strong>Why CLV is the Ultimate Proof:</strong> Single-game final scores contain random fumble recoveries and deflected passes. 
-                <strong> Closing Line Value (CLV)</strong> measures whether our model predicted line movements before the worldwide sharp market locked in at kickoff. If our model consistently beats the closing line, long-term mathematical profitability is mathematically guaranteed.
+                <strong>In Plain English:</strong> Any single game can be swayed by a lucky tipped pass or bad referee call. 
+                <strong> Closing Line Value (CLV)</strong> is like buying stock at \$50 before it rises to \$60. If SnapEdge spots a bargain on Wednesday (e.g. recommending Denver at +7) and by Sunday kickoff Vegas drops the line to +4, you got 3 free points of cushion. Regularly beating the final kickoff line is the purest proof of an accurate model.
               </div>
             </div>
 

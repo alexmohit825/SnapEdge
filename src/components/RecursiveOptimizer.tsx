@@ -383,16 +383,16 @@ export const RecursiveOptimizer: React.FC<RecursiveOptimizerProps> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                        <span>✨ Week 6/7 Calibrated</span>
+                        <span>✨ Balanced Model</span>
                         <span className="text-[10px] font-mono text-emerald-600 font-bold">RECOMMENDED</span>
                       </div>
                       <p className="text-[11px] text-slate-500 mt-1">
-                        Trench 1.35x • EDSR 0.32 • Wind 1.30x. Accurately predicts defensive line collapse.
+                        Weighs offensive line health, steady drives, and stadium wind. Best overall accuracy.
                       </p>
                     </button>
 
                     <button
-                      onClick={() => applyConfig(HEAVY_TRENCH_DEFENSE_CONFIG, 'Heavy Trench Defense Bias Active')}
+                      onClick={() => applyConfig(HEAVY_TRENCH_DEFENSE_CONFIG, 'Defensive Focus Model Active')}
                       className={`p-3 rounded-xl border text-left transition-all ${
                         currentTuning.version === HEAVY_TRENCH_DEFENSE_CONFIG.version
                           ? 'border-purple-500 bg-purple-50/70 shadow-xs ring-1 ring-purple-500'
@@ -400,16 +400,16 @@ export const RecursiveOptimizer: React.FC<RecursiveOptimizerProps> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                        <span>🛡️ Heavy Trench Defense</span>
+                        <span>🛡️ Defensive Focus</span>
                         <span className="text-[10px] font-mono text-purple-600 font-bold">DEFENSIVE</span>
                       </div>
                       <p className="text-[11px] text-slate-500 mt-1">
-                        Trench 1.65x • Wind 1.45x. Ideal for low-scoring trenches and tough weather.
+                        Best for cold or windy weather and matchups dominated by strong defensive lines.
                       </p>
                     </button>
 
                     <button
-                      onClick={() => applyConfig(HIGH_PACE_SHOOTOUT_CONFIG, 'High Pace Shootout Model Active')}
+                      onClick={() => applyConfig(HIGH_PACE_SHOOTOUT_CONFIG, 'Fast-Paced Shootout Model Active')}
                       className={`p-3 rounded-xl border text-left transition-all ${
                         currentTuning.version === HIGH_PACE_SHOOTOUT_CONFIG.version
                           ? 'border-orange-500 bg-orange-50/70 shadow-xs ring-1 ring-orange-500'
@@ -417,11 +417,11 @@ export const RecursiveOptimizer: React.FC<RecursiveOptimizerProps> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                        <span>⚡ High Pace Shootout</span>
+                        <span>⚡ Fast-Paced Shootout</span>
                         <span className="text-[10px] font-mono text-orange-600 font-bold">OFFENSIVE</span>
                       </div>
                       <p className="text-[11px] text-slate-500 mt-1">
-                        Pace 1.05x • Trench 0.85x. Geared towards explosive pass offenses.
+                        Geared towards indoor dome stadiums and explosive passing offenses.
                       </p>
                     </button>
 
