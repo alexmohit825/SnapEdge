@@ -69,6 +69,13 @@ export const CLVAuditDashboard: React.FC<CLVAuditDashboardProps> = ({ matchups }
         {/* Collapsible Audit Records Table */}
         {isOpen && (
           <div className="mt-5 border-t border-slate-100 pt-5 space-y-4 animate-fadeIn">
+            <div className="bg-amber-50/80 rounded-xl p-3 border border-amber-200 text-xs text-amber-950 leading-relaxed flex items-start gap-2.5">
+              <span className="text-lg leading-none">💡</span>
+              <div>
+                <strong>How to Read Minus &amp; Plus Signs:</strong> The <strong>MINUS sign (&minus;)</strong> always marks the <strong>team favored to win</strong> (they have to give away points). The <strong>PLUS sign (+)</strong> marks the <strong>underdog</strong> (they get points added to their final score). In football, when you see a line like <em>-3.5</em>, it means the Home team is favored by 3.5 points.
+              </div>
+            </div>
+
             <div className="bg-emerald-50/50 rounded-xl p-3 border border-emerald-100 text-xs text-slate-700 leading-relaxed flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
               <div>
@@ -82,49 +89,73 @@ export const CLVAuditDashboard: React.FC<CLVAuditDashboardProps> = ({ matchups }
                 <thead className="bg-slate-50 text-slate-600 font-mono text-[10px] uppercase tracking-wider border-b border-slate-200">
                   <tr>
                     <th className="p-3">Matchup</th>
-                    <th className="p-3">Opening Market</th>
-                    <th className="p-3 text-orange-600 font-bold">SnapEdge Fair</th>
-                    <th className="p-3">Closing Market</th>
-                    <th className="p-3">CLV Delta</th>
+                    <th className="p-3">Opening Vegas Line</th>
+                    <th className="p-3 text-orange-600 font-bold">SnapEdge Fair Value</th>
+                    <th className="p-3">Kickoff Closing Line</th>
+                    <th className="p-3">Value Advantage</th>
                     <th className="p-3 text-right">Syndicate Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-mono text-[11px] text-slate-700">
-                  {records.map((r) => (
-                    <tr key={r.matchupId} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="p-3 font-sans font-bold text-slate-900">
-                        {r.gameTitle}
-                      </td>
-                      <td className="p-3">
-                        {r.openingSpread > 0 ? `+${r.openingSpread}` : r.openingSpread}
-                      </td>
-                      <td className="p-3 font-bold text-orange-600">
-                        {r.snapEdgeFairSpread > 0 ? `+${r.snapEdgeFairSpread}` : r.snapEdgeFairSpread}
-                      </td>
-                      <td className="p-3 font-semibold text-slate-900">
-                        {r.closingSpread > 0 ? `+${r.closingSpread}` : r.closingSpread}
-                      </td>
-                      <td className="p-3 text-emerald-600 font-bold">
-                        +{r.clvAlphaBps} bps
-                      </td>
-                      <td className="p-3 text-right">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          r.status === 'CLV_BEAT'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}>
-                          {r.status === 'CLV_BEAT' ? (
-                            <>
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              BEAT CLOSING LINE
-                            </>
-                          ) : (
-                            'MARKET EQUILIBRIUM'
-                          )}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {records.map((r) => {
+                    const homeFavoredOpening = r.openingSpread < 0;
+                    const homeFavoredFair = r.snapEdgeFairSpread < 0;
+                    const homeFavoredClosing = r.closingSpread < 0;
+
+                    return (
+                      <tr key={r.matchupId} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="p-3 font-sans font-bold text-slate-900">
+                          <div>{r.gameTitle}</div>
+                          <div className="text-[10px] font-mono text-slate-400 font-normal">
+                            {r.league} • Home: {r.homeTeamName || 'Home'}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-sans font-bold text-slate-900">
+                            {homeFavoredOpening ? (r.homeTeamName || 'Home') : (r.awayTeamName || 'Away')}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-500">
+                            {r.openingSpread < 0 ? r.openingSpread : `-${r.openingSpread}`} (by {Math.abs(r.openingSpread)} pts)
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-sans font-bold text-orange-600">
+                            {homeFavoredFair ? (r.homeTeamName || 'Home') : (r.awayTeamName || 'Away')}
+                          </div>
+                          <div className="text-[10px] font-mono text-orange-700">
+                            {r.snapEdgeFairSpread < 0 ? r.snapEdgeFairSpread : `-${r.snapEdgeFairSpread}`} (by {Math.abs(r.snapEdgeFairSpread)} pts)
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-sans font-semibold text-slate-900">
+                            {homeFavoredClosing ? (r.homeTeamName || 'Home') : (r.awayTeamName || 'Away')}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-500">
+                            {r.closingSpread < 0 ? r.closingSpread : `-${r.closingSpread}`} (by {Math.abs(r.closingSpread)} pts)
+                          </div>
+                        </td>
+                        <td className="p-3 text-emerald-600 font-bold">
+                          +{r.clvAlphaBps} bps
+                        </td>
+                        <td className="p-3 text-right">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            r.status === 'CLV_BEAT'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {r.status === 'CLV_BEAT' ? (
+                              <>
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                BEAT CLOSING LINE
+                              </>
+                            ) : (
+                              'MARKET EQUILIBRIUM'
+                            )}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

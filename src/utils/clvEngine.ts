@@ -27,6 +27,10 @@ export function calculateMatchupCLV(matchup: Matchup): CLVRecord {
   return {
     matchupId: matchup.id,
     gameTitle: `${matchup.awayTeam.name} at ${matchup.homeTeam.name}`,
+    homeTeamName: matchup.homeTeam.name,
+    awayTeamName: matchup.awayTeam.name,
+    homeAbbr: matchup.homeTeam.abbreviation,
+    awayAbbr: matchup.awayTeam.abbreviation,
     league: matchup.league,
     openingSpread,
     snapEdgeFairSpread: fairSpread,

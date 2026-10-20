@@ -144,6 +144,10 @@ export interface CLVRecord {
   clvDelta: number;
   clvAlphaBps: number;
   status: 'CLV_BEAT' | 'CLV_PUSH' | 'CLV_MISSED';
+  homeTeamName?: string;
+  awayTeamName?: string;
+  homeAbbr?: string;
+  awayAbbr?: string;
 }
 
 // ----------------------------------------------------
