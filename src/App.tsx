@@ -132,7 +132,7 @@ export function App() {
                 </span>
               </div>
               <p className="hidden text-[11px] text-slate-500 sm:block font-medium">
-                Autonomous Football Intelligence & Trench Physics
+                Independent Football Intelligence & Line Strength Analysis
               </p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export function App() {
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700 shadow-xs">
               <span className={`h-2 w-2 rounded-full ${isLiveFeed ? 'bg-racing-500 animate-pulse' : 'bg-blue-500'}`} />
               <span className="font-mono text-[11px] font-semibold">
-                {isLoadingFeed ? 'SYNCING SCHEDULE...' : isLiveFeed ? 'AUTONOMOUS LIVE FEED' : 'OFFLINE BASELINE'}
+                {isLoadingFeed ? 'SYNCING SCHEDULE...' : isLiveFeed ? 'LIVE SCORES & ODDS' : 'OFFLINE BASELINE'}
               </span>
             </div>
             <button 

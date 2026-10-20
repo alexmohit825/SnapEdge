@@ -404,7 +404,7 @@ export const TrialAuditLedger: React.FC<TrialAuditLedgerProps> = ({ matchups }) 
                       <span className="font-mono text-emerald-700">Divergence ≥ 1.5 pts</span>
                     </div>
                     <span className="text-slate-600">
-                      Matchups where SnapEdge&apos;s trench physics and Markov engine strongly disagree with Vegas. This cohort represents our active bets and <strong className="text-emerald-800">must beat the 52.38% breakeven barrier</strong>.
+                      Matchups where SnapEdge&apos;s line matchup simulations strongly disagree with Vegas by 2+ points. This cohort represents our active trial targets and <strong className="text-emerald-800">must beat the 52.38% breakeven barrier</strong>.
                     </span>
                   </div>
                   <div className="p-2 rounded-md bg-slate-50 border border-slate-200/80">

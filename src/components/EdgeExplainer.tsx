@@ -126,10 +126,10 @@ export const EdgeExplainer: React.FC = () => {
                 <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 hover:border-slate-200 hover:bg-white transition-all shadow-sm">
                   <div className="flex items-center gap-2 text-racing-500 mb-1.5">
                     <ShieldAlert className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">1. Trench Physics</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">1. The Line of Scrimmage</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Casual bettors obsess over superstar QBs. We analyze the 320-lb linemen. When a pass block win rate drops under 60%, the pocket collapses in under 2.4 seconds, rendering elite passing stats useless.
+                    Casual fans obsess over star quarterbacks. We analyze the offensive and defensive linemen. When pass protection fails in under 2.4 seconds, even elite quarterbacks struggle to throw.
                   </p>
                 </div>
 
@@ -139,27 +139,27 @@ export const EdgeExplainer: React.FC = () => {
                     <span className="text-xs font-bold uppercase tracking-wider">2. Zero Data Entry</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    You never type a single number. SnapEdge autonomously harvests 2026 depth charts, NFL & CFB injury practice reports, live venue crosswinds, and DraftKings consensus lines across every week.
+                    You never type a single number. The app automatically tracks weekly depth charts, player injuries, local stadium weather, and live sportsbook odds.
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 hover:border-slate-200 hover:bg-white transition-all shadow-sm">
                   <div className="flex items-center gap-2 text-amber-600 mb-1.5">
                     <Target className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">3. Blue-Chip Ratios</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">3. Roster Talent Depth</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    College blowouts against small schools pollute conventional algorithms. SnapEdge strips out FCS padding and evaluates true Blue-Chip Recruit Talent Ratios (4-star & 5-star depth) against defensive havoc.
+                    In college football, blowouts against weak schools distort basic stats. We look past easy games and evaluate true 4-star and 5-star depth to see who holds up in the 4th quarter.
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 hover:border-slate-200 hover:bg-white transition-all shadow-sm">
                   <div className="flex items-center gap-2 text-purple-600 mb-1.5">
                     <TrendingUp className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">4. Itemized Receipts</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">4. Clear Explanations</span>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    No mysterious black box claims. Every matchup provides a granular accounting receipt detailing the exact point value contributed by line-of-scrimmage mismatches versus public line bias.
+                    No mysterious black-box scores. Every prediction includes a clear breakdown showing how much each factor (linemen health, weather, rest) moves the predicted score.
                   </p>
                 </div>
               </div>
@@ -203,59 +203,59 @@ export const EdgeExplainer: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 3: THE MATHEMATICAL ENGINE & VARIABLES */}
+            {/* TAB 3: HOW PREDICTIONS ARE CALCULATED */}
             {activeTab === 'MATH' && (
               <div className="rounded-xl border border-orange-200 bg-orange-50/40 p-4 space-y-3 animate-fadeIn">
                 <div className="flex items-center gap-2 text-orange-800">
                   <Calculator className="h-4 w-4 text-orange-600" />
                   <h4 className="text-xs font-bold uppercase tracking-wider">
-                    What The Math Allows & Specific Variables Analyzed
+                    The Key Factors Evaluated for Every Matchup
                   </h4>
                 </div>
                 <p className="text-xs text-slate-700 leading-relaxed">
-                  SnapEdge combines deterministic physics with 10,000-run Monte Carlo simulations. The math does not guess; it measures how energy and leverage transfer at the point of attack.
+                  SnapEdge simulates thousands of virtual football games down-by-down. Instead of guessing, it measures the tangible physical advantages that win games:
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 text-xs">
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">PBWR vs. PRWR (Edge vs Interior)</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">Pass Protection vs. Defensive Rush</span>
                     <span className="text-slate-600 text-[11px]">
-                      Pass Block vs Pass Rush Win Rate. We isolate A-Gap interior pressure against Centers/Guards (which cuts off QB step-up windows) from outside edge rushes.
+                      Measures whether the offensive line can protect the quarterback long enough to throw without getting sacked from the middle.
                     </span>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">Early-Down Success Rate (EDSR)</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">Early Down Efficiency</span>
                     <span className="text-slate-600 text-[11px]">
-                      Down-to-down consistency on 1st & 2nd downs. Predicts sustained scoring drives without relying on volatile 3rd-down conversions or turnover luck.
+                      Consistency on 1st and 2nd down. Teams that gain reliable yardage stay out of dangerous 3rd-and-long situations.
                     </span>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">Hidden Field Position Delta (ASFP)</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">Starting Field Position</span>
                     <span className="text-slate-600 text-[11px]">
-                      Punter net-hangtime & kickoff touchback differential. A 4-yard edge in Average Starting Field Position equals 2.8 game points over 12 drives.
+                      Punting and kickoff coverage. Starting drives even 4 yards closer to the end zone translates to nearly 3 points per game.
                     </span>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">Pocket Lifespan Delta</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">Quarterback Time to Throw</span>
                     <span className="text-slate-600 text-[11px]">
-                      Below 2.40s, passing EPA plunges from +0.28 to -0.54 per dropback. We model this using a sigmoidal collapse function below 58% PBWR.
+                      When protection breaks down under 2.4 seconds, completion rates plunge and turnovers double.
                     </span>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">Recruit Talent Blue-Chip Ratio</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">Roster Talent Depth</span>
                     <span className="text-slate-600 text-[11px]">
-                      College ratio of 4/5-star recruits. Teams under 50% historically lack the 4th-quarter endurance to beat top-tier programs.
+                      Evaluates backup depth across the roster. Thinner rosters fatigue late in the 4th quarter against powerhouse programs.
                     </span>
                   </div>
 
                   <div className="bg-white p-2.5 rounded-lg border border-orange-100 shadow-xs">
-                    <span className="font-bold text-slate-900 block text-[11px]">Aerodynamic Wind Drag</span>
+                    <span className="font-bold text-slate-900 block text-[11px]">Stadium Wind &amp; Weather</span>
                     <span className="text-slate-600 text-[11px]">
-                      Wind velocity &gt;12 MPH causes exponential drop in field goal success and deep throw completion rates modeled by fluid dynamics.
+                      Crosswinds over 12 MPH cause missed field goals and inaccurate deep passes, consistently lowering total points.
                     </span>
                   </div>
                 </div>
@@ -268,29 +268,29 @@ export const EdgeExplainer: React.FC = () => {
                 <div className="flex items-center gap-2 text-purple-800">
                   <SlidersHorizontal className="h-4 w-4 text-purple-600" />
                   <h4 className="text-xs font-bold uppercase tracking-wider">
-                    What The "What-If" Studio Really Proves About Win Probability
+                    Testing Team Strength with the What-If Studio
                   </h4>
                 </div>
                 <p className="text-xs text-slate-700 leading-relaxed">
-                  Most people think a team with a 65% win probability will win 65% of the time in all conditions. That is false. Football outcomes possess high variance driven by fragile single-point dependencies.
+                  A team favored to win isn't guaranteed to win under all conditions. Football games turn on key player health and sudden weather shifts.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
                   <div className="bg-white p-3 rounded-lg border border-purple-100 shadow-xs">
                     <span className="font-bold text-purple-900 block mb-1">
-                      1. Measuring Fragility vs. Robustness:
+                      1. Spotting Fragile Favorites:
                     </span>
                     <p className="text-slate-600 leading-relaxed">
-                      When you toggle "Simulate Left Tackle Out" in the What-If Studio, the entire probability curve shifts. If a 7-point favorite suddenly drops to a 1.5-point favorite, the math reveals their offense has <strong>high fragility</strong>. A bet on them is vulnerable to in-game attrition.
+                      Toggle &quot;Simulate Tackle Out&quot; in the What-If studio. If a 7-point favorite suddenly shrinks to a 2-point favorite, that team is <strong>fragile</strong>—heavily dependent on one player staying healthy.
                     </p>
                   </div>
 
                   <div className="bg-white p-3 rounded-lg border border-purple-100 shadow-xs">
                     <span className="font-bold text-purple-900 block mb-1">
-                      2. Unlocking Tail Risk & Blowout Potential:
+                      2. Blowouts vs. Close Finishes:
                     </span>
                     <p className="text-slate-600 leading-relaxed">
-                      The zoomable distribution curve shows you the tails. While the market spread might be -3.5, the curve might show a bimodal distribution: either the favorite wins by 14+ because of trench dominance, or the underdog wins outright. This tells you to bet alternate spreads or moneyline rather than laying standard juice.
+                      The score chart shows whether a game is likely to be a tight finish or a runaway blowout. This helps you choose whether to pick a comfortable margin or expect a nail-biter.
                     </p>
                   </div>
                 </div>

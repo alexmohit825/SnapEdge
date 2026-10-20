@@ -511,7 +511,7 @@ export const RecursiveOptimizer: React.FC<RecursiveOptimizerProps> = ({
                   {/* Wind Drag Slider */}
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs">
-                      <span className="font-bold text-slate-800">Wind Aerodynamic Drag Decay:</span>
+                      <span className="font-bold text-slate-800">Wind Drag on Passing & Kicking:</span>
                       <span className="font-mono font-bold text-purple-600">{sliderWind.toFixed(2)}x</span>
                     </div>
                     <input 

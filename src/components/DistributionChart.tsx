@@ -77,11 +77,11 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Probability Distribution Curve (10,000 Runs)
+            Game Outcome Forecast (10,000 Simulations)
           </span>
           {isDeterministic && (
             <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-              ⚡ Deterministic PRNG
+              ⚡ Scientific Seed
             </span>
           )}
           {/* Interactive Zoom Controls */}
@@ -200,7 +200,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
                 textAnchor="middle"
                 fontFamily="monospace"
               >
-                MKT {marketSpread > 0 ? `+${marketSpread}` : marketSpread}
+                VEGAS {marketSpread > 0 ? `+${marketSpread}` : marketSpread}
               </text>
             </g>
           )}
@@ -226,7 +226,7 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
                 textAnchor="middle"
                 fontFamily="monospace"
               >
-                SIM {simulatedSpread > 0 ? `+${simulatedSpread}` : simulatedSpread}
+                OUR VALUE {simulatedSpread > 0 ? `+${simulatedSpread}` : simulatedSpread}
               </text>
             </g>
           )}
@@ -268,9 +268,9 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
       </div>
 
       <div className="flex justify-between items-center text-[10px] text-slate-500 mt-2 font-mono">
-        <span>← {awayName} Blowout Margin</span>
+        <span>← {awayName} Wins by Big Margin</span>
         <span className="text-slate-700 font-semibold">Margin of Victory (Points)</span>
-        <span>{homeName} Blowout Margin →</span>
+        <span>{homeName} Wins by Big Margin →</span>
       </div>
     </div>
   );

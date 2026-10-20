@@ -82,7 +82,7 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
           <div className="mt-3 pt-3 border-t border-amber-100 flex items-center justify-between text-xs text-slate-600">
             <span className="flex items-center gap-1.5 font-medium text-amber-800">
               <Zap className="w-3.5 h-3.5 text-amber-600" />
-              <span>Blue-Chip & Havoc Advantage</span>
+              <span>Talent Depth &amp; Turnover Advantage</span>
             </span>
             <span className="font-mono text-[11px] font-semibold text-amber-900 bg-amber-100/70 px-2 py-0.5 rounded border border-amber-200">
               {cfbAccuracy.correct}-{cfbAccuracy.total - cfbAccuracy.correct} Record
@@ -124,7 +124,7 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
           <div className="mt-3 pt-3 border-t border-sky-100 flex items-center justify-between text-xs text-slate-600">
             <span className="flex items-center gap-1.5 font-medium text-sky-800">
               <CheckCircle className="w-3.5 h-3.5 text-blue-600" />
-              <span>Trench PBWR/PRWR Model</span>
+              <span>Line-of-Scrimmage Matchups</span>
             </span>
             <span className="font-mono text-[11px] font-semibold text-blue-900 bg-sky-100/70 px-2 py-0.5 rounded border border-sky-200">
               {nflAccuracy.correct}-{nflAccuracy.total - nflAccuracy.correct} Record
@@ -132,7 +132,7 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
           </div>
         </div>
 
-        {/* Tier-5.5 State-Space Markov Tensor Engine Status Card */}
+        {/* Play-by-Play Simulator Status Card */}
         <div className="relative overflow-hidden rounded-2xl border border-emerald-200/90 bg-gradient-to-br from-emerald-500/10 via-white to-teal-500/5 p-4 shadow-swiss hover:shadow-swiss-hover transition-all">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
           
@@ -144,22 +144,22 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-700 font-bold block flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  Tier-5.5 Markov Tensor
+                  Play-by-Play Engine
                 </span>
                 <h4 className="text-sm font-bold text-slate-900">
-                  4,000 State Space
+                  Every Down Simulated
                 </h4>
               </div>
             </div>
 
             <div className="text-right">
               <div className="flex items-baseline justify-end gap-1">
-                <span className="text-2xl font-mono font-black text-emerald-600">
-                  TIER 5.5
+                <span className="text-xl font-mono font-black text-emerald-600">
+                  3,000 PLAYS
                 </span>
               </div>
               <span className="text-[10px] font-mono text-slate-500 block">
-                Down × Distance × Yardline
+                Full Game Simulations
               </span>
             </div>
           </div>
@@ -167,10 +167,10 @@ export const AccuracyStats: React.FC<AccuracyStatsProps> = ({ matchups }) => {
           <div className="mt-3 pt-3 border-t border-emerald-100 flex items-center justify-between text-xs text-slate-600">
             <span className="flex items-center gap-1.5 font-medium text-emerald-800">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>CLV Alpha & Clock Velocity</span>
+              <span>Independent Prediction</span>
             </span>
             <span className="font-mono text-[11px] font-semibold text-emerald-900 bg-emerald-100/70 px-2 py-0.5 rounded border border-emerald-200">
-              Syndicate Grade
+              Tested &amp; Verified
             </span>
           </div>
         </div>

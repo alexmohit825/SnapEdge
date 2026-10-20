@@ -21,11 +21,11 @@ export const TrenchHeatmap: React.FC<TrenchHeatmapProps> = ({
         <div className="flex items-center gap-2">
           <Shield className="h-4 w-4 text-racing-500" />
           <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            Line of Scrimmage Physics (Trench Heatmap)
+            Line of Scrimmage Matchup (O-Line vs D-Line)
           </span>
         </div>
         <span className="text-[11px] font-mono text-slate-500">
-          Threshold: 2.50s Pocket Lifespan
+          Standard: 2.5s Quarterback Pocket Time
         </span>
       </div>
 
@@ -40,7 +40,7 @@ export const TrenchHeatmap: React.FC<TrenchHeatmapProps> = ({
           <div className="space-y-2.5">
             <div>
               <div className="flex justify-between text-[11px] mb-1">
-                <span className="text-slate-600 font-medium">Pass Block Win Rate (PBWR)</span>
+                <span className="text-slate-600 font-medium">Pass Protection Rate (Sustained 2.5s)</span>
                 <span className="font-mono font-bold text-racing-600">{homeTrench.passBlockWinRate}%</span>
               </div>
               <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -89,7 +89,7 @@ export const TrenchHeatmap: React.FC<TrenchHeatmapProps> = ({
           <div className="space-y-2.5">
             <div>
               <div className="flex justify-between text-[11px] mb-1">
-                <span className="text-slate-600 font-medium">Pass Block Win Rate (PBWR)</span>
+                <span className="text-slate-600 font-medium">Pass Protection Rate (Sustained 2.5s)</span>
                 <span className="font-mono font-bold text-racing-600">{awayTrench.passBlockWinRate}%</span>
               </div>
               <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">

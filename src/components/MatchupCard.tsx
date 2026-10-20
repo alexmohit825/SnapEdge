@@ -56,7 +56,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           matchupTitle: `${matchup.awayTeam.name} at ${matchup.homeTeam.name}`,
-          prompt: `Act as an elite NFL/CFB trench analyst for ${matchup.awayTeam.name} vs ${matchup.homeTeam.name}. In 2 sharp sentences, explain the decisive trench mismatch between the pass protection (PBWR: ${matchup.homeTeam.trench.passBlockWinRate}% vs ${matchup.awayTeam.trench.passRushWinRate}%) and why the market spread (${matchup.market.spread}) is vulnerable to our SnapEdge fair spread (${matchup.model.fairSpread}).`
+          prompt: `Act as an expert football analyst for ${matchup.awayTeam.name} vs ${matchup.homeTeam.name}. In 2 sharp sentences, explain the decisive line-of-scrimmage matchup between the pass protection (Block win rate: ${matchup.homeTeam.trench.passBlockWinRate}% vs ${matchup.awayTeam.trench.passRushWinRate}%) and why the market spread (${matchup.market.spread}) is vulnerable to our SnapEdge fair spread (${matchup.model.fairSpread}).`
         })
       });
 
@@ -335,23 +335,23 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
               </div>
             )}
 
-            {/* Tier 5.5 State-Space Tensor Telemetry Capsule */}
+            {/* Play-by-Play Drive Engine Telemetry Capsule */}
             <div className="rounded-xl border border-emerald-200/90 bg-gradient-to-r from-emerald-50/50 via-white to-sky-50/50 p-2.5 shadow-2xs">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[10px] font-mono font-bold tracking-wider text-slate-800 uppercase">
-                    🔬 Tier 5.5 State-Space Tensor
+                    🔬 Play-by-Play Drive Engine
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
                   {sim.clvAlphaBasisPoints !== undefined && (
                     <span className="text-[9px] font-mono font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200">
-                      +{sim.clvAlphaBasisPoints} BPS CLV
+                      +{sim.clvAlphaBasisPoints} BPS VALUE
                     </span>
                   )}
                   <span className="text-[9px] font-mono font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-200">
-                    4,000 STATES
+                    3,000 SIMS
                   </span>
                 </div>
               </div>
@@ -431,45 +431,53 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
                 <div className="text-2xl font-mono font-black text-slate-900">
                   {matchup.market.spread > 0 ? `+${matchup.market.spread}` : matchup.market.spread}
                 </div>
-                <div className="text-xs text-slate-600 font-semibold mt-0.5">
-                  O/U {matchup.market.total}
+                <div className="text-[11px] font-bold text-slate-800 mt-0.5 truncate">
+                  {matchup.market.spread < 0 
+                    ? `${matchup.homeTeam.name} by ${Math.abs(matchup.market.spread)}`
+                    : matchup.market.spread > 0
+                    ? `${matchup.awayTeam.name} by ${matchup.market.spread}`
+                    : 'Even Pick'}
                 </div>
-                <div className="mt-1 text-[10px] text-slate-400 font-mono">
-                  {matchup.market.publicCashPctHome}% Public Cash
+                <div className="text-xs text-slate-500 font-medium mt-0.5">
+                  Total {matchup.market.total} Pts
                 </div>
               </div>
 
               {/* SnapEdge Model Fair Line */}
               <div className="bg-orange-50/50 p-3 rounded-xl border border-orange-200 shadow-xs">
                 <span className="block text-[10px] font-mono uppercase text-orange-600 tracking-wider mb-1 font-bold">
-                  SnapEdge Value
+                  SnapEdge Fair Value
                 </span>
                 <div className="text-2xl font-mono font-black text-orange-600">
                   {sim.simulatedSpread > 0 ? `+${sim.simulatedSpread}` : sim.simulatedSpread}
                 </div>
-                <div className="text-xs text-orange-800 font-semibold mt-0.5">
-                  Fair O/U {sim.simulatedTotal}
+                <div className="text-[11px] font-bold text-orange-700 mt-0.5 truncate">
+                  {sim.simulatedSpread < 0 
+                    ? `${matchup.homeTeam.name} by ${Math.abs(sim.simulatedSpread)}`
+                    : sim.simulatedSpread > 0
+                    ? `${matchup.awayTeam.name} by ${sim.simulatedSpread}`
+                    : 'Even Pick'}
                 </div>
-                <div className="mt-1 text-[10px] text-racing-600 font-mono font-bold">
-                  {sim.homeWinPct}% Model Prob
+                <div className="text-xs text-orange-800 font-medium mt-0.5">
+                  Est. Total {sim.simulatedTotal} Pts
                 </div>
               </div>
             </div>
 
-            {/* Trench Pocket Advantage Mini Gauge */}
+            {/* Line of Scrimmage Advantage */}
             <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
               <div className="flex items-center justify-between text-xs font-semibold mb-1">
                 <span className="text-slate-700 flex items-center gap-1 font-bold">
-                  <Flame className="w-3.5 h-3.5 text-orange-500" /> Trench Pressure Clash:
+                  <Flame className="w-3.5 h-3.5 text-orange-500" /> Line of Scrimmage Clash:
                 </span>
                 <span className={`font-mono font-bold text-[11px] ${
                   homeTrenchAdvantage >= 0 ? 'text-emerald-600' : 'text-rose-600'
                 }`}>
-                  {matchup.homeTeam.abbreviation} {homeTrenchAdvantage >= 0 ? `+${homeTrenchAdvantage}%` : `${homeTrenchAdvantage}%`} Pocket Edge
+                  {matchup.homeTeam.abbreviation} {homeTrenchAdvantage >= 0 ? `+${homeTrenchAdvantage}%` : `${homeTrenchAdvantage}%`} Protection Edge
                 </span>
               </div>
               <div className="flex items-center justify-between text-[10px] font-mono text-slate-500">
-                <span>{matchup.homeTeam.abbreviation} PBWR: {matchup.homeTeam.trench.passBlockWinRate}%</span>
+                <span>{matchup.homeTeam.abbreviation} Protection: {matchup.homeTeam.trench.passBlockWinRate}%</span>
                 <span>•</span>
                 <span>{matchup.awayTeam.abbreviation} Net: {awayTrenchAdvantage >= 0 ? `+${awayTrenchAdvantage}%` : `${awayTrenchAdvantage}%`}</span>
               </div>
