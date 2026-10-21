@@ -464,6 +464,33 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
               </div>
             </div>
 
+            {/* Visual Tug-of-War Disparity Gauge */}
+            <div className="bg-white p-2.5 rounded-xl border border-slate-200/90 shadow-2xs space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] font-mono font-bold text-slate-500">
+                <span>Vegas Market: {matchup.market.spread > 0 ? `+${matchup.market.spread}` : matchup.market.spread}</span>
+                <span className="text-orange-600">Our Value: {sim.simulatedSpread > 0 ? `+${sim.simulatedSpread}` : sim.simulatedSpread}</span>
+              </div>
+              <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden flex items-center">
+                <div className="h-full bg-slate-300 w-1/2" />
+                <div 
+                  className={`h-full rounded-full transition-all ${
+                    Math.abs(matchup.model.divergencePoints) >= 2.0 ? 'bg-orange-500' : 'bg-racing-500'
+                  }`} 
+                  style={{ width: `${Math.min(100, Math.max(15, 50 + (matchup.model.divergencePoints * 7)))}%` }} 
+                />
+              </div>
+              <div className="flex items-center justify-between text-[11px] font-semibold pt-0.5">
+                <span className="text-slate-600">Model vs Vegas Difference:</span>
+                <span className={`font-mono font-bold px-2 py-0.5 rounded text-[10px] ${
+                  Math.abs(matchup.model.divergencePoints) >= 2.0 
+                    ? 'bg-racing-50 text-racing-700 border border-racing-200' 
+                    : 'bg-slate-100 text-slate-700'
+                }`}>
+                  {Math.abs(matchup.model.divergencePoints).toFixed(1)} Pts {Math.abs(matchup.model.divergencePoints) >= 2.0 ? '• High Edge' : '• Market Consensus'}
+                </span>
+              </div>
+            </div>
+
             {/* Line of Scrimmage Advantage */}
             <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
               <div className="flex items-center justify-between text-xs font-semibold mb-1">
@@ -551,9 +578,13 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
 
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="flex items-center gap-1 rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all shadow-xs ${
+                showDetails 
+                  ? 'bg-slate-900 text-white border border-slate-900' 
+                  : 'bg-white text-slate-800 border border-slate-300 hover:border-slate-400 hover:bg-slate-50'
+              }`}
             >
-              <span>{showDetails ? 'Hide Diagnostics' : 'Deep Trench & Receipts'}</span>
+              <span>{showDetails ? 'Hide Deep Analysis' : '🔬 Line Matchup & Stats'}</span>
               {showDetails ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
             </button>
           </div>

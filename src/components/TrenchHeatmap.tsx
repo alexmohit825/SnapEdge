@@ -65,15 +65,17 @@ export const TrenchHeatmap: React.FC<TrenchHeatmapProps> = ({
             </div>
 
             <div className="pt-2 flex items-center justify-between text-xs border-t border-slate-100">
-              <span className="flex items-center gap-1 text-slate-500">
-                <Clock className="w-3.5 h-3.5" /> Clean Pocket Time:
+              <span className="flex items-center gap-1.5 text-slate-600 font-medium">
+                <Clock className="w-3.5 h-3.5 text-slate-500" /> Quarterback Pocket Time:
               </span>
-              <span className={`font-mono font-bold text-xs px-2 py-0.5 rounded ${
+              <span className={`font-mono font-bold text-xs px-2.5 py-1 rounded-lg border ${
                 homeTrench.avgTimeToThrowSec >= 2.7 
-                  ? 'bg-emerald-50 text-racing-600 border border-emerald-200' 
-                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  ? 'bg-emerald-50 text-racing-700 border-emerald-300' 
+                  : homeTrench.avgTimeToThrowSec >= 2.5
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : 'bg-rose-50 text-rose-700 border-rose-300'
               }`}>
-                {homeTrench.avgTimeToThrowSec}s
+                {homeTrench.avgTimeToThrowSec}s {homeTrench.avgTimeToThrowSec >= 2.7 ? '• Clean Pocket' : homeTrench.avgTimeToThrowSec >= 2.5 ? '• On-Schedule' : '• Rush Risk'}
               </span>
             </div>
           </div>
@@ -114,15 +116,17 @@ export const TrenchHeatmap: React.FC<TrenchHeatmapProps> = ({
             </div>
 
             <div className="pt-2 flex items-center justify-between text-xs border-t border-slate-100">
-              <span className="flex items-center gap-1 text-slate-500">
-                <Clock className="w-3.5 h-3.5" /> Clean Pocket Time:
+              <span className="flex items-center gap-1.5 text-slate-600 font-medium">
+                <Clock className="w-3.5 h-3.5 text-slate-500" /> Quarterback Pocket Time:
               </span>
-              <span className={`font-mono font-bold text-xs px-2 py-0.5 rounded ${
+              <span className={`font-mono font-bold text-xs px-2.5 py-1 rounded-lg border ${
                 awayTrench.avgTimeToThrowSec >= 2.7 
-                  ? 'bg-emerald-50 text-racing-600 border border-emerald-200' 
-                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  ? 'bg-emerald-50 text-racing-700 border-emerald-300' 
+                  : awayTrench.avgTimeToThrowSec >= 2.5
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : 'bg-rose-50 text-rose-700 border-rose-300'
               }`}>
-                {awayTrench.avgTimeToThrowSec}s
+                {awayTrench.avgTimeToThrowSec}s {awayTrench.avgTimeToThrowSec >= 2.7 ? '• Clean Pocket' : awayTrench.avgTimeToThrowSec >= 2.5 ? '• On-Schedule' : '• Rush Risk'}
               </span>
             </div>
           </div>
