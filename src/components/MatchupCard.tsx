@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { Matchup, SimulationResult, ShadowConfig, EngineTuningConfig } from '../types/football';
 import { runMonteCarloSimulation, runComparisonSimulation, verifyDeterminism } from '../utils/simulator';
 import { TrenchHeatmap } from './TrenchHeatmap';
@@ -25,7 +25,7 @@ interface MatchupCardProps {
   tuningConfig?: EngineTuningConfig;
 }
 
-export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig, tuningConfig }) => {
+const MatchupCardComponent: React.FC<MatchupCardProps> = ({ matchup, shadowConfig, tuningConfig }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showWhatIf, setShowWhatIf] = useState(false);
 
@@ -73,27 +73,49 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
     }
   };
 
-  const perturbations = {
+  const perturbations = useMemo(() => ({
     forceDome,
     windMphOverride: windOverride,
     homeQBOut,
     homeLTOut,
     homeCenterOut,
     awayDEOut,
-  };
+  }), [forceDome, windOverride, homeQBOut, homeLTOut, homeCenterOut, awayDEOut]);
 
-  // Compute live Monte Carlo simulation based on user perturbations & active tuning math
-  const sim: SimulationResult = runMonteCarloSimulation(matchup, perturbations, { tuningConfig });
+  const perturbationsKey = `${forceDome}_${windOverride}_${homeQBOut}_${homeLTOut}_${homeCenterOut}_${awayDEOut}`;
+  const tuningKey = tuningConfig?.version ?? 'base';
 
-  // Compute Shadow Mode Comparison if shadow mode is enabled
+  // Compute live Monte Carlo simulation based on user perturbations & active tuning math (Memoized)
+  const sim: SimulationResult = useMemo(() => {
+    return runMonteCarloSimulation(matchup, perturbations, { tuningConfig });
+  }, [matchup.id, matchup.kickoffTime, perturbationsKey, tuningKey]);
+
+  // Compute Shadow Mode Comparison only when active or inspecting What-If (Memoized)
   const isShadowActive = Boolean(shadowConfig?.enabled);
-  const comparison = runComparisonSimulation(matchup, perturbations, shadowConfig, tuningConfig);
+  const comparison = useMemo(() => {
+    if (!isShadowActive || !showWhatIf) {
+      return {
+        production: sim,
+        shadow: sim,
+        spreadDelta: 0,
+        totalDelta: 0,
+        activeExperimentsCount: 0,
+        experimentDeltas: {}
+      };
+    }
+    return runComparisonSimulation(matchup, perturbations, shadowConfig, tuningConfig);
+  }, [isShadowActive, showWhatIf, matchup.id, perturbationsKey, shadowConfig, tuningKey, sim]);
 
   const [activeCurveMode, setActiveCurveMode] = useState<'PRODUCTION' | 'SHADOW'>('PRODUCTION');
   const activeSim = (activeCurveMode === 'SHADOW' && isShadowActive) ? comparison.shadow : sim;
 
-  // Determinism Verification Check
-  const determinism = verifyDeterminism(matchup, perturbations, { tuningConfig });
+  // Determinism Verification Check (Only computed on-demand when What-If is open)
+  const determinism = useMemo(() => {
+    if (!showWhatIf) {
+      return { isDeterministic: true, iterationsRun: 1000, spreadVariance: 0, is100PercentBitwiseIdentical: true };
+    }
+    return verifyDeterminism(matchup, perturbations, { tuningConfig, iterations: 1000 });
+  }, [showWhatIf, matchup.id, perturbationsKey, tuningKey]);
 
   const hasPerturbations = forceDome || windOverride !== undefined || homeQBOut || homeLTOut || homeCenterOut || awayDEOut;
 
@@ -782,3 +804,5 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({ matchup, shadowConfig,
     </div>
   );
 };
+
+export const MatchupCard = React.memo(MatchupCardComponent);

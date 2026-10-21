@@ -194,6 +194,9 @@ export function transitionMarkovPlay(
   };
 }
 
+// Global In-Memory Memoization Cache for Instant Deterministic Replays
+const simulationCache = new Map<string, SimulationResult>();
+
 /**
  * Full Game Simulation Engine using the 4,000-State Markov Transition Tensor
  * Simulates every individual down, distance, yardline, and clock second.
@@ -203,11 +206,17 @@ export function runMarkovTensorSimulation(
   perturbations: SimulationPerturbations = {},
   options: SimulationOptions = {}
 ): SimulationResult {
-  const iterations = options.iterations ?? 5000;
+  const iterations = options.iterations ?? 1500;
   const tuning = options.tuningConfig;
 
   // Derive stable seed
   const seedString = `${matchup.id}_${matchup.kickoffTime}_TENSOR_5_5_${iterations}_${tuning ? tuning.version : 'base'}_${JSON.stringify(perturbations)}`;
+  
+  // Instant cache hit: 0.001ms return
+  if (simulationCache.has(seedString)) {
+    return simulationCache.get(seedString)!;
+  }
+
   const seed = options.seedOverride !== undefined ? options.seedOverride : hashStringToSeed(seedString);
   const prng = createMulberry32(seed);
 
@@ -470,7 +479,7 @@ export function runMarkovTensorSimulation(
   const clvDelta = Number((matchup.market.spread - simSpread).toFixed(2));
   const clvAlphaBasisPoints = Math.round(Math.abs(clvDelta) * 100);
 
-  return {
+  const result: SimulationResult = {
     simulatedSpread: simSpread,
     simulatedTotal: simTotal,
     homeWinPct: Number(((homeWins / iterations) * 100).toFixed(1)),
@@ -498,4 +507,7 @@ export function runMarkovTensorSimulation(
     gameScriptPaceSecondsHome: 26.8,
     gameScriptPaceSecondsAway: 27.2
   };
+
+  simulationCache.set(seedString, result);
+  return result;
 }

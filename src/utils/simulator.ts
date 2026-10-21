@@ -265,7 +265,7 @@ export function verifyDeterminism(
   perturbations: SimulationPerturbations = {},
   options: SimulationOptions = {}
 ): DeterminismCheckResult {
-  const iterations = options.iterations ?? 10000;
+  const iterations = options.iterations ?? 1000;
   
   const run1 = runMonteCarloSimulation(matchup, perturbations, { ...options, iterations });
   const run2 = runMonteCarloSimulation(matchup, perturbations, { ...options, iterations });

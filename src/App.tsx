@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { SAMPLE_MATCHUPS } from './data/sampleMatchups';
 import type { League, Matchup, ShadowConfig, EngineTuningConfig } from './types/football';
 import { EdgeExplainer } from './components/EdgeExplainer';
@@ -81,52 +81,62 @@ export function App() {
     return () => { isMounted = false; };
   }, [selectedLeague, selectedWeek, hasExplicitWeek]);
 
-  // Current League Matchups
-  const leagueMatchups = matchups.filter(m => m.league === selectedLeague);
-  const highEdgeCount = leagueMatchups.filter(m => Math.abs(m.model.divergencePoints) >= 2.0).length;
+  // Current League Matchups (Memoized)
+  const leagueMatchups = useMemo(() => {
+    return matchups.filter(m => m.league === selectedLeague);
+  }, [matchups, selectedLeague]);
 
-  // Filter matchups
-  const filteredMatchups = leagueMatchups.filter((m) => {
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesName = m.homeTeam.name.toLowerCase().includes(q) || 
-                          m.awayTeam.name.toLowerCase().includes(q) ||
-                          m.homeTeam.abbreviation.toLowerCase().includes(q) ||
-                          m.awayTeam.abbreviation.toLowerCase().includes(q);
-      if (!matchesName) return false;
-    }
+  const highEdgeCount = useMemo(() => {
+    return leagueMatchups.filter(m => Math.abs(m.model.divergencePoints) >= 2.0).length;
+  }, [leagueMatchups]);
 
-    if (filterType === 'HIGH_EDGE') {
-      return Math.abs(m.model.divergencePoints) >= 2.0;
-    }
-    if (filterType === 'TOP_25') {
-      return (m.homeTeam.rank !== undefined && m.homeTeam.rank <= 25) || 
-             (m.awayTeam.rank !== undefined && m.awayTeam.rank <= 25);
-    }
-    if (filterType === 'WIND') {
-      return m.weather.windMph >= 12;
-    }
+  // Filter matchups (Memoized)
+  const filteredMatchups = useMemo(() => {
+    return leagueMatchups.filter((m) => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesName = m.homeTeam.name.toLowerCase().includes(q) || 
+                            m.awayTeam.name.toLowerCase().includes(q) ||
+                            m.homeTeam.abbreviation.toLowerCase().includes(q) ||
+                            m.awayTeam.abbreviation.toLowerCase().includes(q);
+        if (!matchesName) return false;
+      }
 
-    return true;
-  });
+      if (filterType === 'HIGH_EDGE') {
+        return Math.abs(m.model.divergencePoints) >= 2.0;
+      }
+      if (filterType === 'TOP_25') {
+        return (m.homeTeam.rank !== undefined && m.homeTeam.rank <= 25) || 
+               (m.awayTeam.rank !== undefined && m.awayTeam.rank <= 25);
+      }
+      if (filterType === 'WIND') {
+        return m.weather.windMph >= 12;
+      }
 
-  // Group matchups by Date Header (e.g. "Sunday, Oct 18")
-  const getGameDateKey = (m: Matchup): string => {
-    if (m.dateHeader) return m.dateHeader;
-    try {
-      const d = new Date(m.kickoffTime);
-      return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-    } catch {
-      return `Week ${m.week} Matchups`;
+      return true;
+    });
+  }, [leagueMatchups, searchQuery, filterType]);
+
+  // Group matchups by Date Header (Memoized)
+  const groupedMatchups = useMemo(() => {
+    const getGameDateKey = (m: Matchup): string => {
+      if (m.dateHeader) return m.dateHeader;
+      try {
+        const d = new Date(m.kickoffTime);
+        return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      } catch {
+        return `Week ${m.week} Matchups`;
+      }
+    };
+
+    const grouped: { [date: string]: Matchup[] } = {};
+    for (const m of filteredMatchups) {
+      const key = getGameDateKey(m);
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(m);
     }
-  };
-
-  const groupedMatchups: { [date: string]: Matchup[] } = {};
-  for (const m of filteredMatchups) {
-    const key = getGameDateKey(m);
-    if (!groupedMatchups[key]) groupedMatchups[key] = [];
-    groupedMatchups[key].push(m);
-  }
+    return grouped;
+  }, [filteredMatchups]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 antialiased selection:bg-orange-500 selection:text-white pb-20">
